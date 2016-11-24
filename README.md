@@ -31,6 +31,7 @@ Rump is able to transfer keys from an ElastiCache cluster or any Redis server to
 
 - Sync protected ElastiCache via EC2 port forwarding.
 
-`$ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
+```sh
+$ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
 rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
-`
+```
