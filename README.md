@@ -34,3 +34,7 @@ $ rump -from redis://production.cache.amazonaws.com:6379/1 -to redis://127.0.0.1
 $ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
 $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 ```
+
+## License
+
+Rump is licensed under the [MIT License](http://www.opensource.org/licenses/mit-license.php)
