@@ -2,7 +2,6 @@
 
 Sync two Redis servers using dumps.
 
-- Sync EC cluster DB 1 to local DB 1.
 `rump -from redis://1234.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1`
 
 ## Why.
