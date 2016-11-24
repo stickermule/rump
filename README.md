@@ -4,6 +4,8 @@ Sync two Redis servers using dumps.
 
 `rump -from redis://1234.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1`
 
+[![asciicast](https://asciinema.org/a/94003.png)](https://asciinema.org/a/94003)
+
 ## Why.
 
 [ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) doesn't support any of the standard Redis backup commands.
