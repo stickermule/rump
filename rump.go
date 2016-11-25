@@ -21,7 +21,6 @@ func get(conn redis.Conn, queue chan<- map[string]string) {
 		cursor int64
 		keys []string
 	)
-	batch := make(map[string]string)
 
 	for {
 		// Scan a batch of keys.
@@ -38,6 +37,7 @@ func get(conn redis.Conn, queue chan<- map[string]string) {
 		handle(err)
 
 		// Build batch map.
+		batch := make(map[string]string)
 		for i, _ := range keys {
 			batch[keys[i]] = dumps[i]
 		}
