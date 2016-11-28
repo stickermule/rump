@@ -1,5 +1,5 @@
 <h1 align="center">
-<img src="assets/images/rump-logo.svg">
+<img src="assets/images/rump_logo.svg">
 </h1>
 
 Sync two Redis servers using dumps.
