@@ -1,4 +1,6 @@
-# Rump.
+<h1 align="center">
+<img src="assets/images/rump-logo.svg">
+</h1>
 
 Sync two Redis servers using dumps.
 
