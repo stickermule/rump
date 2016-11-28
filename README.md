@@ -10,13 +10,15 @@ Hot sync two Redis databases using dumps.
 
 ## Why.
 
+There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
+
 > **@bdq**: Hey, let's keep our staging Redis containers in sync with our AWS ElastiCache. `BGSAVE` and copy the .rdb?
 
->**@badshark**: Yeah, awesome, let me try... [Nope, not supported.](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+>**@badshark**: Yeah, awesome, let me try... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
 
 >**@bdq**: Ah, that's bad. We'll have to set the containers as `SLAVEOF`?
 
->**@badshark**: That makes sense, doing it... [Nope, not supported.](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+>**@badshark**: That makes sense, doing it... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
 
 >**@bdq**: WAT. Let's use an open source tool to do the sync?
 
@@ -28,7 +30,6 @@ Hot sync two Redis databases using dumps.
 
 >**[@bdq](https://github.com/BDQ)** and **[@badshark](https://github.com/badshark)**: Let's write it in Go?
 
-There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) cluster.
 
 Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
 
