@@ -10,7 +10,17 @@ Hot sync two Redis databases using dumps.
 
 ## Why.
 
-[ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) doesn't support any of the standard Redis backup commands.
+[@bdq](https://github.com/BDQ): Hey, let's keep our staging Redis containers in sync with our AWS ElastiCache. `BGSAVE` and copy the .rdb?
+[@badshark](https://github.com/badshark): Yeah, awesome, let me try... [Nope](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+@bdq: Ah, that's bad. We'll have to set the containers as `SLAVEOF`?
+@badshark: That makes sense, doing it... [Nope](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+@bdq: WAT. Let's use an open source tool to do the sync?
+@badshark: Almost all of them use `KEYS` to get the keys, we'd DoS our own server.
+@bdq: Let's write a script?
+@badshark: Tried. Bash doesn't like key dumps, Ruby/Python + deps take more space than Redis inside the container.
+@bdq and @badshark: Let's write it in Go?
+
+There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) cluster.
 
 Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
 
