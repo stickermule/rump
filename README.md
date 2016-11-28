@@ -1,6 +1,6 @@
 # Rump.
 
-Sync two Redis servers using dumps.
+Hot sync two Redis databases using dumps.
 
 `rump -from redis://1234.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1`
 
