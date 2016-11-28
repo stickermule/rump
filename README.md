@@ -1,4 +1,6 @@
-# Rump.
+<h1 align="center">
+<img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
+</h1>
 
 Hot sync two Redis databases using dumps.
 
