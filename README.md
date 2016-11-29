@@ -5,8 +5,6 @@
 
 Hot sync two Redis databases using dumps.
 
-[![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
-
 ## Why.
 
 There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
@@ -54,6 +52,10 @@ $ rump -from redis://production.cache.amazonaws.com:6379/1 -to redis://127.0.0.1
 $ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
 $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 ```
+
+## Demo
+
+[![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
 
 ## License
 
