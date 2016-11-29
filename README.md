@@ -5,7 +5,7 @@
 
 Hot sync two Redis databases using dumps.
 
-## Why.
+## Why
 
 There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
 
@@ -30,7 +30,7 @@ There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.
 
 Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
 
-## Features.
+## Features
 
 - Uses `SCAN` instead of `KEYS` to avoid DoS your own server.
 - Can sync any key type.
@@ -39,7 +39,7 @@ Rump is able to transfer keys from an ElastiCache cluster or any Redis server to
 - Uses buffered channels to optimize slow source servers.
 - Uses pipelines to minimize network roundtrips.
 
-## Examples.
+## Examples
 
 ```sh
 # Sync local Redis DB 1 to DB 2.
