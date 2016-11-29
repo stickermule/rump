@@ -1,14 +1,11 @@
 <h1 align="center">
 <img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
 </h1>
+[![GoDoc](https://godoc.org/github.com/stickermule/rump?status.svg)](https://godoc.org/github.com/stickermule/rump)
 
 Hot sync two Redis databases using dumps.
 
-`rump -from redis://1234.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1`
-
-[![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
-
-## Why.
+## Why
 
 There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
 
@@ -33,7 +30,7 @@ There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.
 
 Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
 
-## Features.
+## Features
 
 - Uses `SCAN` instead of `KEYS` to avoid DoS your own server.
 - Can sync any key type.
@@ -42,7 +39,7 @@ Rump is able to transfer keys from an ElastiCache cluster or any Redis server to
 - Uses buffered channels to optimize slow source servers.
 - Uses pipelines to minimize network roundtrips.
 
-## Examples.
+## Examples
 
 ```sh
 # Sync local Redis DB 1 to DB 2.
@@ -55,6 +52,10 @@ $ rump -from redis://production.cache.amazonaws.com:6379/1 -to redis://127.0.0.1
 $ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
 $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 ```
+
+## Demo
+
+[![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
 
 ## License
 
