@@ -1,11 +1,14 @@
 package main
 
 import (
-	"os"
-	"fmt"
+	"./signals"
 	"flag"
+	"fmt"
 	"github.com/garyburd/redigo/redis"
+	"os"
 )
+
+var restoredKeysCount = 0
 
 // Report all errors to stdout.
 func handle(err error) {
@@ -15,11 +18,16 @@ func handle(err error) {
 	}
 }
 
+// Report how many keys have been restored so far.
+func displayRestoredKeysCount() {
+	fmt.Printf("\nRestored %d key(s).\n", restoredKeysCount)
+}
+
 // Scan and queue source keys.
 func get(conn redis.Conn, queue chan<- map[string]string) {
 	var (
 		cursor int64
-		keys []string
+		keys   []string
 	)
 
 	for {
@@ -67,6 +75,8 @@ func put(conn redis.Conn, queue <-chan map[string]string) {
 		_, err := conn.Do("")
 		handle(err)
 
+		restoredKeysCount += len(batch)
+
 		fmt.Printf(".")
 	}
 }
@@ -75,6 +85,8 @@ func main() {
 	from := flag.String("from", "", "example: redis://127.0.0.1:6379/0")
 	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
 	flag.Parse()
+
+	signals.Init(displayRestoredKeysCount)
 
 	source, err := redis.DialURL(*from)
 	handle(err)
@@ -93,4 +105,5 @@ func main() {
 	put(destination, queue)
 
 	fmt.Println("Sync done.")
+	displayRestoredKeysCount()
 }
