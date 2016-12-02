@@ -86,8 +86,6 @@ func main() {
 	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
 	flag.Parse()
 
-	signals.Init(displayRestoredKeysCount)
-
 	source, err := redis.DialURL(*from)
 	handle(err)
 	destination, err := redis.DialURL(*to)
@@ -95,6 +93,8 @@ func main() {
 	defer source.Close()
 	defer destination.Close()
 
+	signals.Init(displayRestoredKeysCount)
+	
 	// Channel where batches of keys will pass.
 	queue := make(chan map[string]string, 100)
 
