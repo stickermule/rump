@@ -57,6 +57,24 @@ $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 
 [![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
 
+## Contribute
+
+- We use GitHub issues to discuss everything: features, bugs, docs.
+- Before sending a pull request always open an issue.
+
+## Install
+
+You can find pre-compiled binaries on the [releases](https://github.com/stickermule/rump/releases) page. If you don't see your OS/Arch there, just ask :)
+
+## Mentions
+
+[Sticker Mule Blog](https://www.stickermule.com/blog/introducing-rump)
+[DB Weekly](http://dbweekly.com/issues/132)
+
+## Maintainers
+
+[badshark](https://github.com/badshark)
+
 ## License
 
 Rump is licensed under the [MIT License](https://opensource.org/licenses/MIT)
