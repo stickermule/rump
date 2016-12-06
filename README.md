@@ -68,8 +68,8 @@ You can find pre-compiled binaries on the [releases](https://github.com/stickerm
 
 ## Mentions
 
-[Sticker Mule Blog](https://www.stickermule.com/blog/introducing-rump)
-[DB Weekly](http://dbweekly.com/issues/132)
+- [Sticker Mule Blog](https://www.stickermule.com/blog/introducing-rump)
+- [DB Weekly](http://dbweekly.com/issues/132)
 
 ## Maintainers
 
