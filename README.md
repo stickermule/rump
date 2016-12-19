@@ -69,9 +69,11 @@ You can find pre-compiled binaries on the [releases](https://github.com/stickerm
 ## Mentions
 
 - [Sticker Mule Blog](https://www.stickermule.com/blog/introducing-rump)
-- [DB Weekly](http://dbweekly.com/issues/132)
-- [Go Weekly](http://golangweekly.com/issues/138)
 - [The Changelog](http://email.changelog.com/t/ViewEmail/t/13CBF627BB99BB74/)
+- [Go Weekly](http://golangweekly.com/issues/138)
+- [DB Weekly](http://dbweekly.com/issues/132)
+- [Redis Weekly](http://redisweekly.com/archive/172.html)
+- [Cron Weekly](https://www.cronweekly.com/issue-59/)
 
 ## Maintainers
 
