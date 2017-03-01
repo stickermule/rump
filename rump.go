@@ -9,7 +9,7 @@ import (
 
 // Report all errors to stdout.
 func handle(err error) {
-	if err != nil {
+	if err != nil && err != redis.ErrNil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
