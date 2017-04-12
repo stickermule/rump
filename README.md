@@ -1,7 +1,6 @@
 <h1 align="center">
 <img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
 </h1>
-[![GoDoc](https://godoc.org/github.com/stickermule/rump?status.svg)](https://godoc.org/github.com/stickermule/rump)
 
 Hot sync two Redis databases using dumps.
 
