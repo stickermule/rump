@@ -63,7 +63,7 @@ func TestMain(m *testing.M) {
 
 func cleanRedis(redisURL string) {
 	c, _ := redis.DialURL(redisURL)
-	c.Do("FLUSHALL")
+	_, _ = c.Do("FLUSHALL")
 	c.Close()
 }
 
@@ -75,11 +75,11 @@ func TestConnection(t *testing.T) {
 
 	// Run your code and see if it behaves.
 	c, _ := redis.Dial("tcp", testRedises[0])
-	c.Do("SET", "foo", "bar")
+	_, _ = c.Do("SET", "foo", "bar")
 	got, _ := redis.String(c.Do("GET", key1))
 	assert.Equal(t, value1, got, key1+"has the wrong value: exp")
 
-	redis.String(c.Do("EXPIRE", key1, "0"))
+	_, _ = redis.String(c.Do("EXPIRE", key1, "0"))
 	got, _ = redis.String(c.Do("GET", key1))
 	assert.NotEqual(t, value1, got, key1+"has the wrong value: exp")
 }
@@ -105,12 +105,12 @@ func TestSync(t *testing.T) {
 
 	// Set values at server
 	key1, value1 := "foo", "bar"
-	got, _ = redis.String(fromConn.Do("SET", key1, value1))
+	_, _ = redis.String(fromConn.Do("SET", key1, value1))
 
 	key2, hKey20, hValue20 := "some", "other", "value"
 	hKey21, hValue21 := "another", "value"
-	redis.String(fromConn.Do("HSET", key2, hKey20, hValue20))
-	redis.String(fromConn.Do("HSET", key2, hKey21, hValue21))
+	_, _ = redis.String(fromConn.Do("HSET", key2, hKey20, hValue20))
+	_, _ = redis.String(fromConn.Do("HSET", key2, hKey21, hValue21))
 
 	// Check dump command
 	got, err = redis.String(fromConn.Do("DUMP", key2))
@@ -131,7 +131,6 @@ func TestSync(t *testing.T) {
 
 	got, _ = redis.String(toConn.Do("HGET", key2, hKey20))
 	assert.NotEqual(t, hValue20, got, hValue20+"has the wrong value: exp")
-
 
 	// Verify values are existing in the new server, after syncing
 	Sync(fromAddr, toAddr)
