@@ -1,8 +1,10 @@
 <h1 align="center">
 <img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
 </h1>
-
-Hot sync two Redis databases using dumps.
+<h2>
+<img align="right" src="https://travis-ci.org/jasimmk/rump.svg?branch=master"></img><br>
+</h2>
+Hot sync two Redis databases using dumps. 
 
 ## Why
 

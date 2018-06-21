@@ -4,7 +4,7 @@ import (
 	"os"
 	"fmt"
 	"flag"
-	"github.com/garyburd/redigo/redis"
+	"github.com/gomodule/redigo/redis"
 )
 
 // Report all errors to stdout.
@@ -19,7 +19,7 @@ func handle(err error) {
 func get(conn redis.Conn, queue chan<- map[string]string) {
 	var (
 		cursor int64
-		keys []string
+		keys   []string
 	)
 
 	for {
@@ -71,14 +71,10 @@ func put(conn redis.Conn, queue <-chan map[string]string) {
 	}
 }
 
-func main() {
-	from := flag.String("from", "", "example: redis://127.0.0.1:6379/0")
-	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
-	flag.Parse()
-
-	source, err := redis.DialURL(*from)
+func Sync(from string, to string) {
+	source, err := redis.DialURL(from)
 	handle(err)
-	destination, err := redis.DialURL(*to)
+	destination, err := redis.DialURL(to)
 	handle(err)
 	defer source.Close()
 	defer destination.Close()
@@ -93,4 +89,11 @@ func main() {
 	put(destination, queue)
 
 	fmt.Println("Sync done.")
+}
+
+func main() {
+	from := flag.String("from", "", "example: redis://127.0.0.1:6379/0")
+	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
+	flag.Parse()
+	Sync(*from, *to)
 }
