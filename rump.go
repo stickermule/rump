@@ -16,7 +16,7 @@ func handle(err error) {
 }
 
 // Scan and queue source keys.
-func get(conn redis.Conn, queue chan<- map[string]string) {
+func get(conn redis.Conn, queue chan<- map[string]string, size int64) {
 	var (
 		cursor int64
 		keys []string
@@ -24,11 +24,12 @@ func get(conn redis.Conn, queue chan<- map[string]string) {
 
 	for {
 		// Scan a batch of keys.
-		values, err := redis.Values(conn.Do("SCAN", cursor))
+		values, err := redis.Values(conn.Do("SCAN", cursor, "COUNT", size))
 		handle(err)
 		values, err = redis.Scan(values, &cursor, &keys)
 		handle(err)
 
+		fmt.Printf("scaned keys %d\n", len(keys))
 		// Get pipelined dumps.
 		for _, key := range keys {
 			conn.Send("DUMP", key)
@@ -52,7 +53,7 @@ func get(conn redis.Conn, queue chan<- map[string]string) {
 			break
 		}
 
-		fmt.Printf(">")
+		//fmt.Printf(">")
 		// queue current batch.
 		queue <- batch
 	}
@@ -67,7 +68,7 @@ func put(conn redis.Conn, queue <-chan map[string]string) {
 		_, err := conn.Do("")
 		handle(err)
 
-		fmt.Printf(".")
+		//fmt.Printf(".")
 	}
 }
 
@@ -76,6 +77,7 @@ func main() {
 	fromPwd := flag.String("fromPwd", "", "from redis password")
 	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
 	toPwd := flag.String("toPwd", "", "to redis password")
+	size := flag.Int64("size", 10, "scan size")
 	flag.Parse()
 
 	source, err := redis.DialURL(*from, redis.DialPassword(*fromPwd))
@@ -89,7 +91,7 @@ func main() {
 	queue := make(chan map[string]string, 100)
 
 	// Scan and send to queue.
-	go get(source, queue)
+	go get(source, queue, *size)
 
 	// Restore keys as they come into queue.
 	put(destination, queue)
