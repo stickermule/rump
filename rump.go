@@ -73,12 +73,14 @@ func put(conn redis.Conn, queue <-chan map[string]string) {
 
 func main() {
 	from := flag.String("from", "", "example: redis://127.0.0.1:6379/0")
+	fromPwd := flag.String("fromPwd", "", "from redis password")
 	to := flag.String("to", "", "example: redis://127.0.0.1:6379/1")
+	toPwd := flag.String("toPwd", "", "to redis password")
 	flag.Parse()
 
-	source, err := redis.DialURL(*from)
+	source, err := redis.DialURL(*from, redis.DialPassword(*fromPwd))
 	handle(err)
-	destination, err := redis.DialURL(*to)
+	destination, err := redis.DialURL(*to, redis.DialPassword(*toPwd))
 	handle(err)
 	defer source.Close()
 	defer destination.Close()

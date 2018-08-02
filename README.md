@@ -1,8 +1,13 @@
 <h1 align="center">
-<img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
+<img src="https://rawgit.com/mytokenio/rump/master/assets/images/mytoken.png">
+<img src="https://rawgit.com/mytokenio/rump/master/assets/images/rump_logo.svg">
 </h1>
 
 Hot sync two Redis databases using dumps.
+
+## Fork Update
+
+support redis auth
 
 ## Why
 
