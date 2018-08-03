@@ -18,7 +18,7 @@ func handle(err error) {
 type KVT struct {
 	K string
 	V string
-	T int //milliseconds via PTTL
+	T int64 //milliseconds via PTTL
 }
 
 // Scan and queue source keys.
@@ -43,10 +43,15 @@ func get(conn redis.Conn, queue chan<- KVT, size int64) {
 		dumps, err := redis.Strings(conn.Do(""))
 		handle(err)
 
-		// Build batch map.
+		for _, key := range keys {
+			conn.Send("PTTL", key)
+		}
+		pttls, err := redis.Int64s(conn.Do(""))
+		handle(err)
+
 		for i, k := range keys {
-			ttl, _ := redis.Int(conn.Do("PTTL", k))
-			queue <- KVT{k, dumps[i], ttl,}
+			//pttl, _ := redis.Int(conn.Do("PTTL", k))
+			queue <- KVT{k, dumps[i], pttls[i],}
 		}
 
 		// Last iteration of scan.
