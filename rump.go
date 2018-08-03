@@ -66,9 +66,9 @@ func get(conn redis.Conn, queue chan<- KVT, size int64) {
 func put(conn redis.Conn, queue <-chan KVT) {
 	for kvt := range queue {
 		if kvt.T == -1 {
-			conn.Send("RESTORE", kvt.K, "0", kvt.V)
+			conn.Send("RESTORE", kvt.K, "0", kvt.V, "REPLACE")
 		} else {
-			conn.Send("RESTORE", kvt.K, kvt.T, kvt.V)
+			conn.Send("RESTORE", kvt.K, kvt.T, kvt.V, "REPLACE")
 		}
 	}
 	_, err := conn.Do("")
