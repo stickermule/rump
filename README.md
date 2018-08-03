@@ -9,6 +9,8 @@ Hot sync two Redis databases using dumps.
 
 support redis auth
 
+sync speed control
+
 ## Why
 
 There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
