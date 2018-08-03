@@ -15,8 +15,14 @@ func handle(err error) {
 	}
 }
 
+type KVT struct {
+	K string
+	V string
+	T int //milliseconds via PTTL
+}
+
 // Scan and queue source keys.
-func get(conn redis.Conn, queue chan<- map[string]string, size int64) {
+func get(conn redis.Conn, queue chan<- KVT, size int64) {
 	var (
 		cursor int64
 		keys []string
@@ -38,38 +44,30 @@ func get(conn redis.Conn, queue chan<- map[string]string, size int64) {
 		handle(err)
 
 		// Build batch map.
-		batch := make(map[string]string)
-		for i, _ := range keys {
-			batch[keys[i]] = dumps[i]
+		for i, k := range keys {
+			ttl, _ := redis.Int(conn.Do("PTTL", k))
+			queue <- KVT{k, dumps[i], ttl,}
 		}
 
 		// Last iteration of scan.
 		if cursor == 0 {
-			// queue last batch.
-			select {
-			case queue <- batch:
-			}
 			close(queue)
 			break
 		}
-
-		//fmt.Printf(">")
-		// queue current batch.
-		queue <- batch
 	}
 }
 
 // Restore a batch of keys on destination.
-func put(conn redis.Conn, queue <-chan map[string]string) {
-	for batch := range queue {
-		for key, value := range batch {
-			conn.Send("RESTORE", key, "0", value)
+func put(conn redis.Conn, queue <-chan KVT) {
+	for kvt := range queue {
+		if kvt.T == -1 {
+			conn.Send("RESTORE", kvt.K, "0", kvt.V)
+		} else {
+			conn.Send("RESTORE", kvt.K, kvt.T, kvt.V)
 		}
-		_, err := conn.Do("")
-		handle(err)
-
-		//fmt.Printf(".")
 	}
+	_, err := conn.Do("")
+	handle(err)
 }
 
 func main() {
@@ -88,7 +86,7 @@ func main() {
 	defer destination.Close()
 
 	// Channel where batches of keys will pass.
-	queue := make(chan map[string]string, 100)
+	queue := make(chan KVT, *size)
 
 	// Scan and send to queue.
 	go get(source, queue, *size)
