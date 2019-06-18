@@ -1,7 +1,6 @@
 <h1 align="center">
 <img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
 </h1>
-[![GoDoc](https://godoc.org/github.com/stickermule/rump?status.svg)](https://godoc.org/github.com/stickermule/rump)
 
 Hot sync two Redis databases using dumps.
 
@@ -11,21 +10,21 @@ There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.
 
 > **@bdq**: Hey, let's keep our staging Redis containers in sync with our AWS ElastiCache. `BGSAVE` and copy the .rdb?
 
->**@badshark**: Yeah, awesome, let me try... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+>**@nixtrace**: Yeah, awesome, let me try... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
 
 >**@bdq**: Ah, that's bad. We'll have to set the containers as `SLAVEOF`?
 
->**@badshark**: That makes sense, doing it... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
+>**@nixtrace**: That makes sense, doing it... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
 
 >**@bdq**: WAT. Let's use an open source tool to do the sync?
 
->**@badshark**: Most of them use `KEYS` to get the keys, we'd DoS our own server.
+>**@nixtrace**: Most of them use `KEYS` to get the keys, we'd DoS our own server.
 
 >**@bdq**: Let's write a script?
 
->**@badshark**: Tried. Bash doesn't like key dumps, Ruby/Python + deps take more space than Redis inside the container.
+>**@nixtrace**: Tried. Bash doesn't like key dumps, Ruby/Python + deps take more space than Redis inside the container.
 
->**[@bdq](https://github.com/BDQ)** and **[@badshark](https://github.com/badshark)**: Let's write it in Go?
+>**[@bdq](https://github.com/BDQ)** and **[@nixtrace](https://github.com/nixtrace)**: Let's write it in Go?
 
 
 Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
@@ -57,6 +56,15 @@ $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 
 [![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
 
+## Development
+
+```sh
+# requirements: docker, docker-compose (dc)
+dc up # watch/run Rump tests and a Redis container
+dc run --rm rump sh # get shell on Rump container
+dc run --rm redis sh; redis-cli -h redis # get Redis console
+```
+
 ## Contribute
 
 - We use GitHub issues to discuss everything: features, bugs, docs.
@@ -77,7 +85,7 @@ You can find pre-compiled binaries on the [releases](https://github.com/stickerm
 
 ## Maintainers
 
-[badshark](https://github.com/badshark)
+[nixtrace](https://github.com/nixtrace)
 
 ## License
 
