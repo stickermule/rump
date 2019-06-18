@@ -56,6 +56,15 @@ $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 
 [![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
 
+## Development
+
+```sh
+# requirements: docker, docker-compose (dc)
+dc up # watch/run Rump tests and a Redis container
+dc run --rm rump sh # get shell on Rump container
+dc run --rm redis sh; redis-cli -h redis # get Redis console
+```
+
 ## Contribute
 
 - We use GitHub issues to discuss everything: features, bugs, docs.
