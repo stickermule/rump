@@ -81,8 +81,7 @@ func Run(cfg config.Config) {
 	// Block and wait for goroutines
 	err := g.Wait()
 	if err != nil && err != context.Canceled {
-		fmt.Printf("error: %v\n", err)
-		os.Exit(1)
+		exit(err)
 	} else {
 		fmt.Println("done")
 	}
