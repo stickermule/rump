@@ -1,6 +1,7 @@
 package redis_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -46,17 +47,18 @@ func TestMain(m *testing.M) {
 }
 
 // Test reading all keys from db1 and then writing them to db2
-func TestRead(t *testing.T) {
+func TestReadWrite(t *testing.T) {
 	source := redis.New(db1, ch)
 	target := redis.New(db2, ch)
+	ctx := context.Background()
 
 	// Read all keys from db1, push to shared message bus
-	if err := source.Read(); err != nil {
+	if err := source.Read(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 
 	// Write all keys from message bus to db2
-	if err := target.Write(); err != nil {
+	if err := target.Write(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 

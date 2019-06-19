@@ -5,6 +5,7 @@
 package file_test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"reflect"
@@ -22,6 +23,7 @@ var db2 *radix.Pool
 var ch message.Bus
 var expected map[string]string
 var path string
+var ctx context.Context
 
 func setup() {
 	db1, _ = radix.NewPool("tcp", "redis://redis:6379/5", 1)
@@ -29,6 +31,7 @@ func setup() {
 	ch = make(message.Bus, 100)
 	expected = make(map[string]string)
 	path = "/app/dump.rump"
+	ctx = context.Background()
 
 	// generate source test data
 	for i := 1; i <= 20; i++ {
@@ -57,7 +60,7 @@ func TestMain(m *testing.M) {
 func TestWriteRead(t *testing.T) {
 	// Read all keys from db1, push to shared message bus
 	source := redis.New(db1, ch)
-	if err := source.Read(); err != nil {
+	if err := source.Read(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 
@@ -78,7 +81,7 @@ func TestWriteRead(t *testing.T) {
 
 	// Write from shared message bus to db2
 	target2 := redis.New(db2, ch2)
-	if err := target2.Write(); err != nil {
+	if err := target2.Write(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 

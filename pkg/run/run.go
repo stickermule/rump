@@ -46,7 +46,7 @@ func Run(cfg config.Config) {
 		source := redis.New(db, ch)
 
 		g.Go(func() error {
-			return source.Read()
+			return source.Read(gctx)
 		})
 	} else {
 		source := file.New(cfg.Source.URI, ch)
@@ -67,7 +67,7 @@ func Run(cfg config.Config) {
 
 		g.Go(func() error {
 			defer cancel()
-			return target.Write()
+			return target.Write(gctx)
 		})
 	} else {
 		target := file.New(cfg.Target.URI, ch)
