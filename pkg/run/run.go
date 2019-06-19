@@ -42,12 +42,15 @@ func Run(cfg config.Config) {
 		if err != nil {
 			exit(err)
 		}
+
 		source := redis.New(db, ch)
+
 		g.Go(func() error {
 			return source.Read()
 		})
 	} else {
 		source := file.New(cfg.Source.URI, ch)
+
 		g.Go(func() error {
 			return source.Read()
 		})
@@ -59,13 +62,16 @@ func Run(cfg config.Config) {
 		if err != nil {
 			exit(err)
 		}
+
 		target := redis.New(db, ch)
+
 		g.Go(func() error {
 			defer cancel()
 			return target.Write()
 		})
 	} else {
 		target := file.New(cfg.Target.URI, ch)
+
 		g.Go(func() error {
 			defer cancel()
 			return target.Write()
