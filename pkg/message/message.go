@@ -4,7 +4,7 @@ package message
 
 // Payload represents a Redis key/value pair.
 type Payload struct {
-	Key string
+	Key   string
 	Value string
 }
 

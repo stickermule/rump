@@ -4,14 +4,14 @@ package config
 import (
 	"flag"
 	"fmt"
-	"strings"
 	"os"
+	"strings"
 )
 
 // Resource can be either Redis (isRedis) or file.
-// URI is either a Redis URI of a file path.
+// URI is either a Redis URI or a file path.
 type Resource struct {
-	URI string
+	URI     string
 	IsRedis bool
 }
 
@@ -30,7 +30,7 @@ func exit(e error) {
 	os.Exit(1)
 }
 
-// validate makes sure from and to are Redis URIs of file paths,
+// validate makes sure from and to are Redis URIs or file paths,
 // and generates the final Config.
 func validate(from, to string) (Config, error) {
 	cfg := Config{

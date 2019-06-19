@@ -3,21 +3,23 @@ package redis
 
 import (
 	"fmt"
-	"github.com/stickermule/rump/pkg/message"
+
 	"github.com/mediocregopher/radix/v3"
+
+	"github.com/stickermule/rump/pkg/message"
 )
 
 // Redis holds references to a DB pool and a shared message bus.
 type Redis struct {
 	Pool *radix.Pool
-	Bus message.Bus
+	Bus  message.Bus
 }
 
 // New creates the Redis struct, used to read/write.
 func New(source *radix.Pool, bus message.Bus) *Redis {
 	return &Redis{
 		Pool: source,
-		Bus: bus,
+		Bus:  bus,
 	}
 }
 
@@ -31,7 +33,7 @@ func (r *Redis) Read() error {
 	var key string
 	var value string
 
-	// Scan and push to bus until until no keys are left.
+	// Scan and push to bus until no keys are left.
 	for scanner.Next(&key) {
 		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
 		if err != nil {

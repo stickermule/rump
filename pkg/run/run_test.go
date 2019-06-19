@@ -16,7 +16,9 @@ package run_test
 import (
 	"fmt"
 	"os"
+
 	"github.com/mediocregopher/radix/v3"
+
 	"github.com/stickermule/rump/pkg/config"
 	"github.com/stickermule/rump/pkg/run"
 )
@@ -52,11 +54,11 @@ func ExampleRun_redisToRedis() {
 
 	cfg := config.Config{
 		Source: config.Resource{
-			URI: "redis://redis:6379/9",
+			URI:     "redis://redis:6379/9",
 			IsRedis: true,
 		},
 		Target: config.Resource{
-			URI: "redis://redis:6379/10",
+			URI:     "redis://redis:6379/10",
 			IsRedis: true,
 		},
 	}
@@ -74,11 +76,11 @@ func ExampleRun_redisToFile() {
 
 	cfg := config.Config{
 		Source: config.Resource{
-			URI: "redis://redis:6379/9",
+			URI:     "redis://redis:6379/9",
 			IsRedis: true,
 		},
 		Target: config.Resource{
-			URI: "/app/rump.dump",
+			URI:     "/app/dump.rump",
 			IsRedis: false,
 		},
 	}
@@ -96,11 +98,11 @@ func ExampleRun_fileToRedis() {
 
 	cfgFileDump := config.Config{
 		Source: config.Resource{
-			URI: "redis://redis:6379/9",
+			URI:     "redis://redis:6379/9",
 			IsRedis: true,
 		},
 		Target: config.Resource{
-			URI: "/app/rump.dump",
+			URI:     "/app/dump.rump",
 			IsRedis: false,
 		},
 	}
@@ -108,11 +110,11 @@ func ExampleRun_fileToRedis() {
 
 	cfg := config.Config{
 		Source: config.Resource{
-			URI: "/app/rump.dump",
+			URI:     "/app/dump.rump",
 			IsRedis: false,
 		},
 		Target: config.Resource{
-			URI: "redis://redis:6379/10",
+			URI:     "redis://redis:6379/10",
 			IsRedis: true,
 		},
 	}
