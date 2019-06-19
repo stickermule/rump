@@ -3,8 +3,8 @@
 package signal
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"

@@ -5,14 +5,16 @@
 package file_test
 
 import (
-	"testing"
-	"reflect"
-	"os"
 	"fmt"
+	"os"
+	"reflect"
+	"testing"
+
 	"github.com/mediocregopher/radix/v3"
+
+	"github.com/stickermule/rump/pkg/file"
 	"github.com/stickermule/rump/pkg/message"
 	"github.com/stickermule/rump/pkg/redis"
-	"github.com/stickermule/rump/pkg/file"
 )
 
 var db1 *radix.Pool

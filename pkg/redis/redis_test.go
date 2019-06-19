@@ -1,11 +1,13 @@
 package redis_test
 
 import (
-	"testing"
-	"reflect"
-	"os"
 	"fmt"
+	"os"
+	"reflect"
+	"testing"
+
 	"github.com/mediocregopher/radix/v3"
+
 	"github.com/stickermule/rump/pkg/message"
 	"github.com/stickermule/rump/pkg/redis"
 )

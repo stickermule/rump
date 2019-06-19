@@ -2,16 +2,18 @@
 package run
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"os"
-	"golang.org/x/sync/errgroup"
-	"github.com/stickermule/rump/pkg/config"
-	"github.com/stickermule/rump/pkg/message"
-	"github.com/stickermule/rump/pkg/signal"
-	"github.com/stickermule/rump/pkg/redis"
-	"github.com/stickermule/rump/pkg/file"
+
 	"github.com/mediocregopher/radix/v3"
+	"golang.org/x/sync/errgroup"
+
+	"github.com/stickermule/rump/pkg/config"
+	"github.com/stickermule/rump/pkg/file"
+	"github.com/stickermule/rump/pkg/message"
+	"github.com/stickermule/rump/pkg/redis"
+	"github.com/stickermule/rump/pkg/signal"
 )
 
 // Exit helper
@@ -35,8 +37,7 @@ func Run(cfg config.Config) {
 	ch := make(message.Bus, 100)
 
 	// Create and run either a Redis or File Source reader.
-	switch cfg.Source.IsRedis {
-	case true:
+	if cfg.Source.IsRedis {
 		db, err := radix.NewPool("tcp", cfg.Source.URI, 1)
 		if err != nil {
 			exit(err)
@@ -45,7 +46,7 @@ func Run(cfg config.Config) {
 		g.Go(func() error {
 			return source.Read()
 		})
-	case false:
+	} else {
 		source := file.New(cfg.Source.URI, ch)
 		g.Go(func() error {
 			return source.Read()
@@ -53,8 +54,7 @@ func Run(cfg config.Config) {
 	}
 
 	// Create and run either a Redis or File Target writer.
-	switch cfg.Target.IsRedis {
-	case true:
+	if cfg.Target.IsRedis {
 		db, err := radix.NewPool("tcp", cfg.Target.URI, 1)
 		if err != nil {
 			exit(err)
@@ -64,7 +64,7 @@ func Run(cfg config.Config) {
 			defer cancel()
 			return target.Write()
 		})
-	case false:
+	} else {
 		target := file.New(cfg.Target.URI, ch)
 		g.Go(func() error {
 			defer cancel()
@@ -75,7 +75,8 @@ func Run(cfg config.Config) {
 	// Block and wait for goroutines
 	err := g.Wait()
 	if err != nil && err != context.Canceled {
-		fmt.Errorf("error: %v", err)
+		fmt.Printf("error: %v\n", err)
+		os.Exit(1)
 	} else {
 		fmt.Println("done")
 	}
