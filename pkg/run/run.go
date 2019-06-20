@@ -66,14 +66,14 @@ func Run(cfg config.Config) {
 		target := redis.New(db, ch)
 
 		g.Go(func() error {
-			// defer cancel()
+			defer cancel()
 			return target.Write(gctx)
 		})
 	} else {
 		target := file.New(cfg.Target.URI, ch)
 
 		g.Go(func() error {
-			// defer cancel()
+			defer cancel()
 			return target.Write(gctx)
 		})
 	}
