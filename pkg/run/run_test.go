@@ -66,7 +66,7 @@ func ExampleRun_redisToRedis() {
 	run.Run(cfg)
 	// Output:
 	// rw
-	// exiting
+	// signal: exit
 	// done
 }
 
@@ -88,7 +88,7 @@ func ExampleRun_redisToFile() {
 	run.Run(cfg)
 	// Output:
 	// rw
-	// exiting
+	// signal: exit
 	// done
 }
 
@@ -121,9 +121,9 @@ func ExampleRun_fileToRedis() {
 	run.Run(cfg)
 	// Output:
 	// rw
-	// exiting
+	// signal: exit
 	// done
 	// rw
-	// exiting
+	// signal: exit
 	// done
 }

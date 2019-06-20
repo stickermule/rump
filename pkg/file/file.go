@@ -47,12 +47,10 @@ func (f *File) Read(ctx context.Context) error {
 		select {
 		case <-ctx.Done():
 			fmt.Println("")
-			fmt.Println("exiting reader")
+			fmt.Println("file read: exit")
 			return ctx.Err()
 		case f.Bus <- message.Payload{Key: key, Value: value}:
 			fmt.Printf("r")
-		default:
-			fmt.Printf(".")
 		}
 	}
 
@@ -75,7 +73,7 @@ func (f *File) Write(ctx context.Context) error {
 		// Exit early if context done.
 		case <-ctx.Done():
 			fmt.Println("")
-			fmt.Println("exiting")
+			fmt.Println("file write: exit")
 			return ctx.Err()
 		// Get Messages from Bus
 		case p, ok := <-f.Bus:
@@ -89,8 +87,6 @@ func (f *File) Write(ctx context.Context) error {
 				return err
 			}
 			fmt.Printf("w")
-		default:
-			fmt.Printf(".")
 		}
 	}
 
