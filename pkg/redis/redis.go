@@ -38,19 +38,21 @@ func (r *Redis) Read(ctx context.Context) error {
 	// Scan and push to bus until no keys are left.
 	// If context Done, exit early.
 	for scanner.Next(&key) {
+		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
+		if err != nil {
+			return err
+		}
+
 		select {
 		case <-ctx.Done():
 			fmt.Println("")
 			fmt.Println("exiting")
 			return ctx.Err()
-		default:
-			err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
-			if err != nil {
-				return err
-			}
-			r.Bus <- message.Payload{Key: key, Value: value}
+		case r.Bus <- message.Payload{Key: key, Value: value}:
 			fmt.Printf("r")
-			}
+		default:
+			fmt.Printf(".")
+		}
 	}
 
 	return scanner.Close()
@@ -64,7 +66,7 @@ func (r *Redis) Write(ctx context.Context) error {
 		// Exit early if context done.
 		case <-ctx.Done():
 			fmt.Println("")
-			fmt.Println("exiting")
+			fmt.Println("exiting writer")
 			return ctx.Err()
 		// Get Messages from Bus
 		case p, ok := <-r.Bus:

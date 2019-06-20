@@ -39,19 +39,20 @@ func (f *File) Read(ctx context.Context) error {
 	// Scan line by line
 	// file protocol is two lines per key/value pair: key\n value\n
 	for scanner.Scan() {
+		// Get key on first line
+		key := scanner.Text()
+		// trigger next scan to get value on next line
+		scanner.Scan()
+		value := scanner.Text()
 		select {
 		case <-ctx.Done():
 			fmt.Println("")
-			fmt.Println("exiting")
+			fmt.Println("exiting reader")
 			return ctx.Err()
-		default:
-			// Get key on first line
-			key := scanner.Text()
-			// trigger next scan to get value on next line
-			scanner.Scan()
-			value := scanner.Text()
-			f.Bus <- message.Payload{Key: key, Value: value}
+		case f.Bus <- message.Payload{Key: key, Value: value}:
 			fmt.Printf("r")
+		default:
+			fmt.Printf(".")
 		}
 	}
 
@@ -88,6 +89,8 @@ func (f *File) Write(ctx context.Context) error {
 				return err
 			}
 			fmt.Printf("w")
+		default:
+			fmt.Printf(".")
 		}
 	}
 
