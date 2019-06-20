@@ -1,4 +1,5 @@
 // Package file allows reading/writing from/to a Rump file.
+// Rump file protocol is key✝✝value✝✝key✝✝value✝✝...
 package file
 
 import (
@@ -6,6 +7,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/stickermule/rump/pkg/message"
 )
@@ -16,6 +18,23 @@ type File struct {
 	Bus  message.Bus
 }
 
+// split is double-cross (✝✝) custom Scanner Split.
+func splitCross(data []byte, atEOF bool) (advance int, token []byte, err error) {
+
+	// end of file
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	// Split at separator
+	if i := strings.Index(string(data), "✝✝"); i >= 0 {
+		// Separator is 6 bytes long
+		return i + 6, data[0:i], nil
+	}
+
+	return 0, nil, nil
+}
+
 // New creates the File struct, to be used for reading/writing.
 func New(path string, bus message.Bus) *File {
 	return &File{
@@ -24,7 +43,7 @@ func New(path string, bus message.Bus) *File {
 	}
 }
 
-// Read scans a Rump .dump file and sends Payloads to the message bus.
+// Read scans a Rump file and sends Payloads to the message bus.
 func (f *File) Read(ctx context.Context) error {
 	defer close(f.Bus)
 	d, err := os.Open(f.Path)
@@ -33,11 +52,12 @@ func (f *File) Read(ctx context.Context) error {
 		return err
 	}
 
-	// Scan file with default ScanLines
+	// Scan file, split by double-cross separator
 	scanner := bufio.NewScanner(d)
+	scanner.Split(splitCross)
 
 	// Scan line by line
-	// file protocol is two lines per key/value pair: key\n value\n
+	// file protocol is key✝✝value✝✝
 	for scanner.Scan() {
 		// Get key on first line
 		key := scanner.Text()
@@ -82,7 +102,7 @@ func (f *File) Write(ctx context.Context) error {
 				f.Bus = nil
 				continue
 			}
-			_, err := w.WriteString(p.Key + "\n" + p.Value + "\n")
+			_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝")
 			if err != nil {
 				return err
 			}
