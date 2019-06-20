@@ -52,7 +52,7 @@ func Run(cfg config.Config) {
 		source := file.New(cfg.Source.URI, ch)
 
 		g.Go(func() error {
-			return source.Read()
+			return source.Read(gctx)
 		})
 	}
 
@@ -74,7 +74,7 @@ func Run(cfg config.Config) {
 
 		g.Go(func() error {
 			defer cancel()
-			return target.Write()
+			return target.Write(gctx)
 		})
 	}
 
