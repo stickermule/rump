@@ -3,8 +3,8 @@
 package file
 
 import (
-	"context"
 	"bufio"
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -46,11 +46,12 @@ func New(path string, bus message.Bus) *File {
 // Read scans a Rump file and sends Payloads to the message bus.
 func (f *File) Read(ctx context.Context) error {
 	defer close(f.Bus)
+
 	d, err := os.Open(f.Path)
-	defer d.Close()
 	if err != nil {
 		return err
 	}
+	defer d.Close()
 
 	// Scan file, split by double-cross separator
 	scanner := bufio.NewScanner(d)
@@ -80,13 +81,16 @@ func (f *File) Read(ctx context.Context) error {
 // Write writes to a Rump file Payloads from the message bus.
 func (f *File) Write(ctx context.Context) error {
 	d, err := os.Create(f.Path)
-	defer d.Close()
 	if err != nil {
 		return err
 	}
+	defer d.Close()
 
 	// Buffered write to limit system IO calls
 	w := bufio.NewWriter(d)
+
+	// Flush last open buffers
+	defer w.Flush()
 
 	for f.Bus != nil {
 		select {
@@ -109,9 +113,6 @@ func (f *File) Write(ctx context.Context) error {
 			fmt.Printf("w")
 		}
 	}
-
-	// Flush last open buffers
-	w.Flush()
 
 	return nil
 }

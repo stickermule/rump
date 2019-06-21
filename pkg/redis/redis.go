@@ -29,8 +29,9 @@ func New(source *radix.Pool, bus message.Bus) *Redis {
 // It leverages implicit pipelining to speedup large DB reads.
 // To be used in an ErrGroup.
 func (r *Redis) Read(ctx context.Context) error {
-	scanner := radix.NewScanner(r.Pool, radix.ScanAllKeys)
 	defer close(r.Bus)
+
+	scanner := radix.NewScanner(r.Pool, radix.ScanAllKeys)
 
 	var key string
 	var value string
