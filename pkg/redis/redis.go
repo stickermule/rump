@@ -15,24 +15,48 @@ type Redis struct {
 	Pool *radix.Pool
 	Bus  message.Bus
 	Silent bool
+	TTL bool
 }
 
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus, silent bool) *Redis {
+func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
 	return &Redis{
 		Pool: source,
 		Bus:  bus,
 		Silent: silent,
+		TTL: ttl,
 	}
 }
 
-// Log read/write operations unless silent mode enabled
-func (r *Redis) log(s string) {
+// maybeLog either logs or doesn't log, depending on Silent state
+func (r *Redis) maybeLog(s string) {
 	if r.Silent {
 		return
 	}
 	fmt.Printf(s)
+}
+
+func (r *Redis) maybeTTL(key string) (string, error) {
+	// noop if TTL is disabled, speeds up sync process
+	if !r.TTL {
+		return "0", nil
+	}
+
+	var ttl string
+
+	err := r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
+	if err != nil {
+		return ttl, err
+	}
+
+	// When key has no expire PTTL returns "-1".
+	// We set it to 0, default for no expiration time.
+	if ttl == "-1" {
+		ttl = "0"
+	}
+
+	return ttl, nil
 }
 
 // Read gently scans an entire Redis DB for keys, then dumps
@@ -46,6 +70,7 @@ func (r *Redis) Read(ctx context.Context) error {
 
 	var key string
 	var value string
+	var ttl string
 
 	// Scan and push to bus until no keys are left.
 	// If context Done, exit early.
@@ -55,13 +80,18 @@ func (r *Redis) Read(ctx context.Context) error {
 			return err
 		}
 
+		ttl, err = r.maybeTTL(key);
+		if err != nil {
+			return err
+		}
+
 		select {
 		case <-ctx.Done():
 			fmt.Println("")
 			fmt.Println("redis read: exit")
 			return ctx.Err()
-		case r.Bus <- message.Payload{Key: key, Value: value}:
-			r.log("r")
+		case r.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
+			r.maybeLog("r")
 		}
 	}
 
@@ -85,11 +115,11 @@ func (r *Redis) Write(ctx context.Context) error {
 				r.Bus = nil
 				continue
 			}
-			err := r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, "0", p.Value, "REPLACE"))
+			err := r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, p.TTL, p.Value, "REPLACE"))
 			if err != nil {
 				return err
 			}
-			r.log("w")
+			r.maybeLog("w")
 		}
 	}
 

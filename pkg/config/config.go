@@ -14,7 +14,6 @@ import (
 type Resource struct {
 	URI     string
 	IsRedis bool
-	Silent bool
 }
 
 // Config represents the current source and target config.
@@ -22,6 +21,8 @@ type Resource struct {
 type Config struct {
 	Source Resource
 	Target Resource
+	Silent bool
+	TTL bool
 }
 
 // exit will exit and print the usage.
@@ -34,16 +35,16 @@ func exit(e error) {
 
 // validate makes sure from and to are Redis URIs or file paths,
 // and generates the final Config.
-func validate(from, to string, silent bool) (Config, error) {
+func validate(from, to string, silent, ttl bool) (Config, error) {
 	cfg := Config{
 		Source: Resource{
 			URI: from,
-			Silent: silent,
 		},
 		Target: Resource{
 			URI: to,
-			Silent: silent,
 		},
+		Silent: silent,
+		TTL: ttl,
 	}
 
 	if strings.HasPrefix(from, "redis://") {
@@ -72,11 +73,12 @@ func Parse() Config {
 	example := "example: redis://127.0.0.1:6379/0 or /tmp/dump.rump"
 	from := flag.String("from", "", example)
 	to := flag.String("to", "", example)
-	silent := flag.Bool("silent", false, "disable verbose output")
+	silent := flag.Bool("silent", false, "optional, no verbose output")
+	ttl := flag.Bool("ttl", false, "optional, enable ttl sync")
 
 	flag.Parse()
 
-	cfg, err := validate(*from, *to, *silent)
+	cfg, err := validate(*from, *to, *silent, *ttl)
 	if err != nil {
 		// we exit here instead of returning so that we can show
 		// the usage examples in case of an error.

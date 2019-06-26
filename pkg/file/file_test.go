@@ -59,13 +59,13 @@ func TestMain(m *testing.M) {
 
 func TestWriteRead(t *testing.T) {
 	// Read all keys from db1, push to shared message bus
-	source := redis.New(db1, ch, false)
+	source := redis.New(db1, ch, false, false)
 	if err := source.Read(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 
 	// Write rump dump from shared message bus
-	target := file.New(path, ch, false)
+	target := file.New(path, ch, false, false)
 	if err := target.Write(ctx); err != nil {
 		t.Error("error: ", err)
 	}
@@ -74,13 +74,13 @@ func TestWriteRead(t *testing.T) {
 	ch2 := make(message.Bus, 100)
 
 	// Read rump dump file
-	source2 := file.New(path, ch2, false)
+	source2 := file.New(path, ch2, false, false)
 	if err := source2.Read(ctx); err != nil {
 		t.Error("error: ", err)
 	}
 
 	// Write from shared message bus to db2
-	target2 := redis.New(db2, ch2, false)
+	target2 := redis.New(db2, ch2, false, false)
 	if err := target2.Write(ctx); err != nil {
 		t.Error("error: ", err)
 	}
