@@ -56,16 +56,41 @@ func ExampleRun_redisToRedis() {
 		Source: config.Resource{
 			URI:     "redis://redis:6379/9",
 			IsRedis: true,
+			Silent: false,
 		},
 		Target: config.Resource{
 			URI:     "redis://redis:6379/10",
 			IsRedis: true,
+			Silent: false,
 		},
 	}
 
 	run.Run(cfg)
 	// Output:
 	// rw
+	// signal: exit
+	// done
+}
+
+func ExampleRun_redisToRedisSilent() {
+	setup()
+	defer teardown()
+
+	cfg := config.Config{
+		Source: config.Resource{
+			URI:     "redis://redis:6379/9",
+			IsRedis: true,
+			Silent: true,
+		},
+		Target: config.Resource{
+			URI:     "redis://redis:6379/10",
+			IsRedis: true,
+			Silent: true,
+		},
+	}
+
+	run.Run(cfg)
+	// Output:
 	// signal: exit
 	// done
 }

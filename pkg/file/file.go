@@ -45,6 +45,14 @@ func New(path string, bus message.Bus, silent bool) *File {
 	}
 }
 
+// Log read/write operations unless silent mode enabled
+func (f *File) log(s string) {
+	if f.Silent {
+		return
+	}
+	fmt.Printf(s)
+}
+
 // Read scans a Rump file and sends Payloads to the message bus.
 func (f *File) Read(ctx context.Context) error {
 	defer close(f.Bus)
@@ -73,7 +81,7 @@ func (f *File) Read(ctx context.Context) error {
 			fmt.Println("file read: exit")
 			return ctx.Err()
 		case f.Bus <- message.Payload{Key: key, Value: value}:
-			fmt.Printf("r")
+			f.log("r")
 		}
 	}
 
@@ -112,7 +120,7 @@ func (f *File) Write(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("w")
+			f.log("w")
 		}
 	}
 

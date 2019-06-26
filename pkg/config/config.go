@@ -10,9 +10,11 @@ import (
 
 // Resource can be either Redis (isRedis) or file.
 // URI is either a Redis URI or a file path.
+// Silent mode will disable read/write logs.
 type Resource struct {
 	URI     string
 	IsRedis bool
+	Silent bool
 }
 
 // Config represents the current source and target config.
@@ -32,13 +34,15 @@ func exit(e error) {
 
 // validate makes sure from and to are Redis URIs or file paths,
 // and generates the final Config.
-func validate(from, to string) (Config, error) {
+func validate(from, to string, silent bool) (Config, error) {
 	cfg := Config{
 		Source: Resource{
 			URI: from,
+			Silent: silent,
 		},
 		Target: Resource{
 			URI: to,
+			Silent: silent,
 		},
 	}
 
@@ -68,10 +72,11 @@ func Parse() Config {
 	example := "example: redis://127.0.0.1:6379/0 or /tmp/dump.rump"
 	from := flag.String("from", "", example)
 	to := flag.String("to", "", example)
+	silent := flag.Bool("silent", false, "example: -silent")
 
 	flag.Parse()
 
-	cfg, err := validate(*from, *to)
+	cfg, err := validate(*from, *to, *silent)
 	if err != nil {
 		// we exit here instead of returning so that we can show
 		// the usage examples in case of an error.
