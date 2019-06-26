@@ -72,7 +72,7 @@ func Parse() Config {
 	example := "example: redis://127.0.0.1:6379/0 or /tmp/dump.rump"
 	from := flag.String("from", "", example)
 	to := flag.String("to", "", example)
-	silent := flag.Bool("silent", false, "example: -silent")
+	silent := flag.Bool("silent", false, "disable verbose output")
 
 	flag.Parse()
 
