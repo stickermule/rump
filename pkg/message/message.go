@@ -2,7 +2,7 @@
 // Message Payloads pass through a Bus channel.
 package message
 
-// Payload represents a Redis key/value pair, with optional TTL.
+// Payload represents a Redis key/value pair with TTL.
 type Payload struct {
 	Key   string
 	Value string

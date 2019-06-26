@@ -1,5 +1,5 @@
 // Package file allows reading/writing from/to a Rump file.
-// Rump file protocol is key✝✝value✝✝key✝✝value✝✝...
+// Rump file protocol is key✝✝value✝✝ttl✝✝key✝✝value✝✝ttl✝✝...
 package file
 
 import (
@@ -20,7 +20,7 @@ type File struct {
 	TTL bool
 }
 
-// split is double-cross (✝✝) custom Scanner Split.
+// splitCross is a double-cross (✝✝) custom Scanner Split.
 func splitCross(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
 	// end of file

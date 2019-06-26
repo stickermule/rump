@@ -10,7 +10,6 @@ import (
 
 // Resource can be either Redis (isRedis) or file.
 // URI is either a Redis URI or a file path.
-// Silent mode will disable read/write logs.
 type Resource struct {
 	URI     string
 	IsRedis bool
@@ -18,6 +17,8 @@ type Resource struct {
 
 // Config represents the current source and target config.
 // Source and target are Resources.
+// Silent disables verbose mode.
+// TTL enables keys TTL sync.
 type Config struct {
 	Source Resource
 	Target Resource
