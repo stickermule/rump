@@ -16,6 +16,7 @@ import (
 type File struct {
 	Path string
 	Bus  message.Bus
+	Silent bool
 }
 
 // split is double-cross (✝✝) custom Scanner Split.
@@ -36,10 +37,11 @@ func splitCross(data []byte, atEOF bool) (advance int, token []byte, err error) 
 }
 
 // New creates the File struct, to be used for reading/writing.
-func New(path string, bus message.Bus) *File {
+func New(path string, bus message.Bus, silent bool) *File {
 	return &File{
 		Path: path,
 		Bus:  bus,
+		Silent: silent,
 	}
 }
 
