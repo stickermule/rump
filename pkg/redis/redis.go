@@ -17,6 +17,7 @@ type Redis struct {
 	Silent bool
 }
 
+
 // New creates the Redis struct, used to read/write.
 func New(source *radix.Pool, bus message.Bus, silent bool) *Redis {
 	return &Redis{
@@ -24,6 +25,14 @@ func New(source *radix.Pool, bus message.Bus, silent bool) *Redis {
 		Bus:  bus,
 		Silent: silent,
 	}
+}
+
+// Log read/write operations unless silent mode enabled
+func (r *Redis) log(s string) {
+	if r.Silent {
+		return
+	}
+	fmt.Printf(s)
 }
 
 // Read gently scans an entire Redis DB for keys, then dumps
@@ -52,7 +61,7 @@ func (r *Redis) Read(ctx context.Context) error {
 			fmt.Println("redis read: exit")
 			return ctx.Err()
 		case r.Bus <- message.Payload{Key: key, Value: value}:
-			fmt.Printf("r")
+			r.log("r")
 		}
 	}
 
@@ -80,7 +89,7 @@ func (r *Redis) Write(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			fmt.Printf("w")
+			r.log("w")
 		}
 	}
 
