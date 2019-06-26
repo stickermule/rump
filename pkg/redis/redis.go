@@ -11,6 +11,8 @@ import (
 )
 
 // Redis holds references to a DB pool and a shared message bus.
+// Silent disables verbose mode.
+// TTL enables TTL sync.
 type Redis struct {
 	Pool *radix.Pool
 	Bus  message.Bus
@@ -29,7 +31,7 @@ func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
 	}
 }
 
-// maybeLog either logs or doesn't log, depending on Silent state
+// maybeLog may log, depending on the Silent flag
 func (r *Redis) maybeLog(s string) {
 	if r.Silent {
 		return
@@ -37,6 +39,7 @@ func (r *Redis) maybeLog(s string) {
 	fmt.Printf(s)
 }
 
+// maybeTTL may sync the TTL, depending on the TTL flag
 func (r *Redis) maybeTTL(key string) (string, error) {
 	// noop if TTL is disabled, speeds up sync process
 	if !r.TTL {
@@ -45,6 +48,7 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 
 	var ttl string
 
+	// Try getting key TTL.
 	err := r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
 	if err != nil {
 		return ttl, err
