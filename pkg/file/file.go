@@ -17,6 +17,7 @@ type File struct {
 	Path string
 	Bus  message.Bus
 	Silent bool
+	TTL bool
 }
 
 // split is double-cross (✝✝) custom Scanner Split.
@@ -37,16 +38,17 @@ func splitCross(data []byte, atEOF bool) (advance int, token []byte, err error) 
 }
 
 // New creates the File struct, to be used for reading/writing.
-func New(path string, bus message.Bus, silent bool) *File {
+func New(path string, bus message.Bus, silent, ttl bool) *File {
 	return &File{
 		Path: path,
 		Bus:  bus,
 		Silent: silent,
+		TTL: ttl,
 	}
 }
 
 // Log read/write operations unless silent mode enabled
-func (f *File) log(s string) {
+func (f *File) maybeLog(s string) {
 	if f.Silent {
 		return
 	}
@@ -68,20 +70,23 @@ func (f *File) Read(ctx context.Context) error {
 	scanner.Split(splitCross)
 
 	// Scan line by line
-	// file protocol is key✝✝value✝✝
+	// file protocol is key✝✝value✝✝ttl✝✝
 	for scanner.Scan() {
-		// Get key on first line
+		// Get key
 		key := scanner.Text()
-		// trigger next scan to get value on next line
+		// trigger next scan to get value
 		scanner.Scan()
 		value := scanner.Text()
+		// trigger next scan to get ttl
+		scanner.Scan()
+		ttl := scanner.Text()
 		select {
 		case <-ctx.Done():
 			fmt.Println("")
 			fmt.Println("file read: exit")
 			return ctx.Err()
-		case f.Bus <- message.Payload{Key: key, Value: value}:
-			f.log("r")
+		case f.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
+			f.maybeLog("r")
 		}
 	}
 
@@ -116,11 +121,11 @@ func (f *File) Write(ctx context.Context) error {
 				f.Bus = nil
 				continue
 			}
-			_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝")
+			_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝" + p.TTL + "✝✝")
 			if err != nil {
 				return err
 			}
-			f.log("w")
+			f.maybeLog("w")
 		}
 	}
 
