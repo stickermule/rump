@@ -48,8 +48,8 @@ func TestMain(m *testing.M) {
 
 // Test reading all keys from db1 and then writing them to db2
 func TestReadWrite(t *testing.T) {
-	source := redis.New(db1, ch)
-	target := redis.New(db2, ch)
+	source := redis.New(db1, ch, false)
+	target := redis.New(db2, ch, false)
 	ctx := context.Background()
 
 	// Read all keys from db1, push to shared message bus

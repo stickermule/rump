@@ -14,13 +14,15 @@ import (
 type Redis struct {
 	Pool *radix.Pool
 	Bus  message.Bus
+	Silent bool
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus) *Redis {
+func New(source *radix.Pool, bus message.Bus, silent bool) *Redis {
 	return &Redis{
 		Pool: source,
 		Bus:  bus,
+		Silent: silent,
 	}
 }
 
