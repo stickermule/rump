@@ -1,7 +1,4 @@
-<h1 align="center">
-<img src="./rump/master/assets/images/rump_logo.svg">
-</h1>
-![Rump](img/logo.svg)
+![Rump](img/logo.svg?raw=true)
 
 Hot sync two Redis databases using dumps.
 
