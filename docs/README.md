@@ -19,7 +19,7 @@ It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and dev
 - Uses buffered channels to optimize slow source servers.
 - Uses implicit pipelining to minimize network roundtrips.
 - Supports two-step sync: dump source to file, restore file to database.
-- Supports Redi URIs with auth.
+- Supports Redis URIs with auth.
 
 ## Examples
 
