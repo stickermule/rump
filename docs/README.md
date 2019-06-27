@@ -20,7 +20,7 @@ $ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2
 $ rump -from redis://production.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1
 
 # Sync protected ElastiCache via EC2 port forwarding.
-$ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
+$ ssh -L 6969:production.cache.amazonaws.com:6379 -N username@xxx.xxx.xxx.xxx &
 $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
 
 # Dump GCP MemoryStore to file.
