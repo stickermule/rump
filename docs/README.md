@@ -12,7 +12,7 @@ It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and dev
 
 ## Features
 
-- Uses `SCAN` instead of `KEYS` to avoid DoS your own server.
+- Uses `SCAN` instead of `KEYS` to avoid DoS  server.
 - Doesn't use any temp file.
 - Can sync any key type.
 - Can optionally sync TTLs.
@@ -74,7 +74,6 @@ Binaries can be found on the [releases](https://github.com/stickermule/rump/rele
 curl -SL https://github.com/stickermule/rump/releases/download/1.0.0/rump-1.0.0 -o rump && chmod +x rump
 ./rump
 ```
-
 
 ## Mentions
 
