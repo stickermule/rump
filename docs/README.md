@@ -72,7 +72,8 @@ We follow the [Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-cod
 Binaries can be found on the [releases](https://github.com/stickermule/rump/releases) page.
 
 ```
-curl -SL https://github.com/stickermule/rump/releases/download/1.0.0/rump-1.0.0 -o rump && chmod +x rump
+curl -SL https://github.com/stickermule/rump/releases/download/1.0.0/rump-1.0.0-linux-amd64 -o rump \
+  && chmod +x rump;
 ./rump
 ```
 
