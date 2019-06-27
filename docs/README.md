@@ -10,17 +10,6 @@ Rump is able to live sync Redis databases across cloud providers by only using `
 
 It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and development environments in sync with the production AWS/GCP Redis clusters.
 
-## Features
-
-- Uses `SCAN` instead of `KEYS` to avoid DoS servers.
-- Doesn't use any temp file.
-- Can sync any key type.
-- Can optionally sync TTLs.
-- Uses buffered channels to optimize slow source servers.
-- Uses implicit pipelining to minimize network roundtrips.
-- Supports two-step sync: dump source to file, restore file to database.
-- Supports Redis URIs with auth.
-
 ## Examples
 
 ```sh
@@ -46,6 +35,18 @@ $ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2 -silent
 # Sync with TTLs.
 $ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2 -ttl
 ```
+
+## Features
+
+- Uses `SCAN` instead of `KEYS` to avoid DoS servers.
+- Doesn't use any temp file.
+- Can sync any key type.
+- Can optionally sync TTLs.
+- Uses buffered channels to optimize slow source servers.
+- Uses implicit pipelining to minimize network roundtrips.
+- Supports two-step sync: dump source to file, restore file to database.
+- Supports Redis URIs with auth.
+- Offers the same guarantees of the [SCAN](https://redis.io/commands/scan#scan-guarantees) command.
 
 ## Demo
 
