@@ -1,4 +1,4 @@
-![Rump](img/logo.svg?raw=true)
+![Rump](img/logo.svg?sanitize=true)
 
 Hot sync two Redis databases using dumps.
 
