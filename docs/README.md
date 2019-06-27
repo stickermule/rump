@@ -12,7 +12,7 @@ It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and dev
 
 ## Features
 
-- Uses `SCAN` instead of `KEYS` to avoid DoS  server.
+- Uses `SCAN` instead of `KEYS` to avoid DoS servers.
 - Doesn't use any temp file.
 - Can sync any key type.
 - Can optionally sync TTLs.
