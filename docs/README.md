@@ -1,46 +1,14 @@
-<h1 align="center">
-<img src="./rump/master/assets/images/rump_logo.svg">
-</h1>
-![Rump](img/logo.svg)
+![Rump](img/logo.svg?sanitize=true)
 
 Hot sync two Redis databases using dumps.
 
 ## Why
 
-There's no easy way to get/sync data from an [AWS ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html) or [GCP MemoryStore](https://cloud.google.com/memorystore/docs/reference/redis-configs#blocked) Redis cluster.
+There's no easy way to sync data from an [AWS ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html) or [GCP MemoryStore](https://cloud.google.com/memorystore/docs/reference/redis-configs#blocked) Redis cluster; the standard commands `BGSAVE` and `SLAVEOF` are blocked.
 
-Rump is able to live sync of Redis databases across cloud providers by only using `SCAN`, `DUMP` and `RESTORE`.
+Rump is able to live sync Redis databases across cloud providers by only using `SCAN`, `DUMP` and `RESTORE`.
 
-It is used in production at StickerMule to keep our production Redis clusters in sync with our staging and dev environments.
-
-> **@bdq**: Hey, let's keep our staging Redis containers in sync with our AWS ElastiCache. `BGSAVE` and copy the .rdb?
-
->**@nixtrace**: Yeah, awesome, let me try... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
-
->**@bdq**: Ah, that's bad. We'll have to set the containers as `SLAVEOF`?
-
->**@nixtrace**: That makes sense, doing it... [Nope, not supported](http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html).
-
->**@bdq**: WAT. Let's use an open source tool to do the sync?
-
->**@nixtrace**: Most of them use `KEYS` to get the keys, we'd DoS our own server.
-
->**@bdq**: Let's write a script?
-
->**@nixtrace**: Tried. Bash doesn't like key dumps, Ruby/Python + deps take more space than Redis inside the container.
-
->**[@bdq](https://github.com/BDQ)** and **[@nixtrace](https://github.com/nixtrace)**: Let's write it in Go?
-
-
-
-## Features
-
-- Uses `SCAN` instead of `KEYS` to avoid DoS your own server.
-- Can sync any key type.
-- Drops the TTL on purpose, since it wouldn't be in sync.
-- Doesn't use any temp file.
-- Uses buffered channels to optimize slow source servers.
-- Uses pipelines to minimize network roundtrips.
+It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and development environments in sync with the production AWS/GCP Redis clusters.
 
 ## Examples
 
@@ -52,9 +20,33 @@ $ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2
 $ rump -from redis://production.cache.amazonaws.com:6379/1 -to redis://127.0.0.1:6379/1
 
 # Sync protected ElastiCache via EC2 port forwarding.
-$ ssh -L 6969:production.cache.amazonaws.com:6379 -N ubuntu@xxx.xxx.xxx.xxx &
+$ ssh -L 6969:production.cache.amazonaws.com:6379 -N username@xxx.xxx.xxx.xxx &
 $ rump -from redis://127.0.0.1:6969/1 -to redis://127.0.0.1:6379/1
+
+# Dump GCP MemoryStore to file.
+$ rump -from redis://10.0.20.2:6379/1 -to /backup/memorystore.rump
+
+# Restore backup to ElastiCache.
+$ rump -from /backup/memorystore.rump -to redis://production.cache.amazonaws.com:6379/1
+
+# Sync with verbose mode disabled.
+$ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2 -silent
+
+# Sync with TTLs.
+$ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2 -ttl
 ```
+
+## Features
+
+- Uses `SCAN` instead of `KEYS` to avoid DoS servers.
+- Doesn't use any temp file.
+- Can sync any key type.
+- Can optionally sync TTLs.
+- Uses buffered channels to optimize slow source servers.
+- Uses implicit pipelining to minimize network roundtrips.
+- Supports two-step sync: dump source to file, restore file to database.
+- Supports Redis URIs with auth.
+- Offers the same guarantees of the [SCAN](https://redis.io/commands/scan#scan-guarantees) command.
 
 ## Demo
 
@@ -71,12 +63,19 @@ dc run --rm redis sh; redis-cli -h redis # get Redis console
 
 ## Contribute
 
-- We use GitHub issues to discuss everything: features, bugs, docs.
-- Before sending a pull request always open an issue.
+We follow the [Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-code) philosophy:
+1. Open an issue and discuss changes.
+2. Open a PR.
 
 ## Install
 
-You can find pre-compiled binaries on the [releases](https://github.com/stickermule/rump/releases) page. If you don't see your OS/Arch there, just ask :)
+Binaries can be found on the [releases](https://github.com/stickermule/rump/releases) page.
+
+```
+curl -SL https://github.com/stickermule/rump/releases/download/1.0.0/rump-1.0.0-linux-amd64 -o rump \
+  && chmod +x rump;
+./rump
+```
 
 ## Mentions
 
