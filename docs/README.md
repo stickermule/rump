@@ -1,12 +1,17 @@
 <h1 align="center">
-<img src="https://rawgit.com/jdorfman/rump/master/assets/images/rump_logo.svg">
+<img src="./rump/master/assets/images/rump_logo.svg">
 </h1>
+![Rump](img/logo.svg)
 
 Hot sync two Redis databases using dumps.
 
 ## Why
 
-There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.amazon.com/AmazonElastiCache/latest/UserGuide/ClientConfig.RestrictedCommands.html ) Redis cluster.
+There's no easy way to get/sync data from an [AWS ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html) or [GCP MemoryStore](https://cloud.google.com/memorystore/docs/reference/redis-configs#blocked) Redis cluster.
+
+Rump is able to live sync of Redis databases across cloud providers by only using `SCAN`, `DUMP` and `RESTORE`.
+
+It is used in production at StickerMule to keep our production Redis clusters in sync with our staging and dev environments.
 
 > **@bdq**: Hey, let's keep our staging Redis containers in sync with our AWS ElastiCache. `BGSAVE` and copy the .rdb?
 
@@ -27,7 +32,6 @@ There's no easy way to get/sync data from an [AWS ElastiCache]( http://docs.aws.
 >**[@bdq](https://github.com/BDQ)** and **[@nixtrace](https://github.com/nixtrace)**: Let's write it in Go?
 
 
-Rump is able to transfer keys from an ElastiCache cluster or any Redis server to another Redis server, by only using `SCAN`, `DUMP` and `RESTORE`.
 
 ## Features
 
@@ -82,6 +86,7 @@ You can find pre-compiled binaries on the [releases](https://github.com/stickerm
 - [DB Weekly](http://dbweekly.com/issues/132)
 - [Redis Weekly](http://redisweekly.com/archive/172.html)
 - [Cron Weekly](https://www.cronweekly.com/issue-59/)
+- [Hacker News](https://news.ycombinator.com/front?day=2016-12-05&p=2)
 
 ## Maintainers
 
