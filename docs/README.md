@@ -4,7 +4,7 @@ Hot sync two Redis databases using dumps.
 
 ## Why
 
-There's no easy way to sync data from an [AWS ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html) or [GCP MemoryStore](https://cloud.google.com/memorystore/docs/reference/redis-configs#blocked) Redis cluster, the standard commands `BGSAVE` and `SLAVEOF` are blocked.
+There's no easy way to sync data from an [AWS ElastiCache](https://docs.aws.amazon.com/AmazonElastiCache/latest/red-ug/RestrictedCommands.html) or [GCP MemoryStore](https://cloud.google.com/memorystore/docs/reference/redis-configs#blocked) Redis cluster; the standard commands `BGSAVE` and `SLAVEOF` are blocked.
 
 Rump is able to live sync Redis databases across cloud providers by only using `SCAN`, `DUMP` and `RESTORE`.
 
