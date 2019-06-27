@@ -8,7 +8,7 @@ There's no easy way to sync data from an [AWS ElastiCache](https://docs.aws.amaz
 
 Rump is able to live sync Redis databases across cloud providers by only using `SCAN`, `DUMP` and `RESTORE`.
 
-It's used at Sticker Mule to keep staging and development environments in sync with the production AWS/GCP Redis clusters.
+It's used at [Sticker Mule](https://www.stickermule.com) to keep staging and development environments in sync with the production AWS/GCP Redis clusters.
 
 ## Features
 
