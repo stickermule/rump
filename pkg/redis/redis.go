@@ -14,20 +14,19 @@ import (
 // Silent disables verbose mode.
 // TTL enables TTL sync.
 type Redis struct {
-	Pool *radix.Pool
-	Bus  message.Bus
+	Pool   *radix.Pool
+	Bus    message.Bus
 	Silent bool
-	TTL bool
+	TTL    bool
 }
-
 
 // New creates the Redis struct, used to read/write.
 func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
 	return &Redis{
-		Pool: source,
-		Bus:  bus,
+		Pool:   source,
+		Bus:    bus,
 		Silent: silent,
-		TTL: ttl,
+		TTL:    ttl,
 	}
 }
 
@@ -36,7 +35,7 @@ func (r *Redis) maybeLog(s string) {
 	if r.Silent {
 		return
 	}
-	fmt.Printf(s)
+	fmt.Print(s)
 }
 
 // maybeTTL may sync the TTL, depending on the TTL flag
@@ -84,7 +83,7 @@ func (r *Redis) Read(ctx context.Context) error {
 			return err
 		}
 
-		ttl, err = r.maybeTTL(key);
+		ttl, err = r.maybeTTL(key)
 		if err != nil {
 			return err
 		}

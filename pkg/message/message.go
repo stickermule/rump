@@ -6,7 +6,7 @@ package message
 type Payload struct {
 	Key   string
 	Value string
-	TTL string
+	TTL   string
 }
 
 // Bus is a channel where message Payloads pass.
