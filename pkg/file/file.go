@@ -14,10 +14,10 @@ import (
 
 // File can read and write, to a file Path, using the message Bus.
 type File struct {
-	Path string
-	Bus  message.Bus
+	Path   string
+	Bus    message.Bus
 	Silent bool
-	TTL bool
+	TTL    bool
 }
 
 // splitCross is a double-cross (✝✝) custom Scanner Split.
@@ -40,10 +40,10 @@ func splitCross(data []byte, atEOF bool) (advance int, token []byte, err error) 
 // New creates the File struct, to be used for reading/writing.
 func New(path string, bus message.Bus, silent, ttl bool) *File {
 	return &File{
-		Path: path,
-		Bus:  bus,
+		Path:   path,
+		Bus:    bus,
 		Silent: silent,
-		TTL: ttl,
+		TTL:    ttl,
 	}
 }
 
@@ -52,7 +52,7 @@ func (f *File) maybeLog(s string) {
 	if f.Silent {
 		return
 	}
-	fmt.Printf(s)
+	fmt.Print(s)
 }
 
 // Read scans a Rump file and sends Payloads to the message bus.
@@ -88,6 +88,10 @@ func (f *File) Read(ctx context.Context) error {
 		case f.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
 			f.maybeLog("r")
 		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return err
 	}
 
 	return nil

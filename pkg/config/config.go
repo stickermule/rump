@@ -23,7 +23,7 @@ type Config struct {
 	Source Resource
 	Target Resource
 	Silent bool
-	TTL bool
+	TTL    bool
 }
 
 // exit will exit and print the usage.
@@ -45,7 +45,7 @@ func validate(from, to string, silent, ttl bool) (Config, error) {
 			URI: to,
 		},
 		Silent: silent,
-		TTL: ttl,
+		TTL:    ttl,
 	}
 
 	if strings.HasPrefix(from, "redis://") {
