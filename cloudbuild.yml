@@ -17,7 +17,7 @@ steps:
 - id: redis
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
-    '--name', 'redis'
+    '--name', 'redis',
     '--network', 'ci',
     '-p', '6379:6379',
     '-d',
