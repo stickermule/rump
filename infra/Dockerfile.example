@@ -7,7 +7,11 @@ FROM alpine:latest
 RUN apk add --no-cache curl
 
 RUN \
-VERSION=0.9.3 && curl -L -o /rump \
-https://github.com/stickermule/rump/releases/download/$VERSION/rump-beta-$VERSION && chmod +x /rump
+VERSION=0.9.4 && \
+ARCH=linux-amd64 && \
+NAME=rump-$VERSION-$ARCH && \
+curl -L -o /rump \
+https://github.com/stickermule/rump/releases/download/$VERSION/$NAME && \
+chmod +x /rump
 
 ENTRYPOINT ["/rump"]
