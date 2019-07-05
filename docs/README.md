@@ -1,4 +1,5 @@
-![Rump](img/logo.svg?sanitize=true)
+![Rump](img/logo.svg?sanitize=true)  
+
 [![Go Report Card](https://goreportcard.com/badge/github.com/stickermule/rump)](https://goreportcard.com/report/github.com/stickermule/rump)
 
 Hot sync two Redis databases using dumps.
