@@ -54,7 +54,7 @@ $ rump -from redis://127.0.0.1:6379/1 -to redis://127.0.0.1:6379/2 -ttl
 
 ## Demo
 
-[![asciicast](https://asciinema.org/a/94355.png)](https://asciinema.org/a/94355)
+[![asciicast](https://asciinema.org/a/255784.png)](https://asciinema.org/a/255784)
 
 ## Development
 
