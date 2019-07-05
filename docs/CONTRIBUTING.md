@@ -1,12 +1,9 @@
 # Contributing
 
-When contributing to this repository, please first discuss the change you wish to make via [issues](https://github.com/stickermule/rump/issues).
-
-Please note we have a code of conduct, please follow it in all your interactions with the project.
-
 ## Pull Request Process
+[Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-code)
 
-1. Open an issue and discuss before opening a pull request.
+1. Open an issue to discuss changes before opening a pull request.
 2. When the issue is confirmed, open a pull request referencing the issue.
 3. The pull request can be merged when you have the sign-off of a maintainer. 
 4. On release, the versioning scheme we use is [SemVer](http://semver.org/).
