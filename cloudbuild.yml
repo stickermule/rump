@@ -11,7 +11,7 @@ steps:
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
     'rump:ci-$BRANCH_NAME',
-    'golint -set_exit_status ./...']
+    'golint', '-set_exit_status', './...']
   waitFor: ['build']
 
 - id: redis
