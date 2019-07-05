@@ -26,5 +26,5 @@ steps:
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
     'rump:ci-$BRANCH_NAME',
-    'go test ./....']
+    'go', 'test' './...']
   waitFor: ['lint']
