@@ -36,4 +36,4 @@ steps:
     '--network', 'ci',
     'rump:ci-$BRANCH_NAME',
     'go', 'test', './...']
-  waitFor: ['network]
+  waitFor: ['network']
