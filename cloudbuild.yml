@@ -17,7 +17,7 @@ steps:
 - id: network
   name: 'gcr.io/cloud-builders/docker'
   args: ['network',
-    'create', 'ci',
+    'create', 'ci',]
   waitFor: ['lint']
 
 - id: redis
