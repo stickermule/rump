@@ -64,12 +64,6 @@ dc run --rm rump sh # get shell on Rump container
 dc run --rm redis sh; redis-cli -h redis # get Redis console
 ```
 
-## Contribute
-
-We follow the [Talk, then code](https://dave.cheney.net/2019/02/18/talk-then-code) philosophy:
-1. Open an issue and discuss changes.
-2. Open a PR.
-
 ## Install
 
 Binaries can be found on the [releases](https://github.com/stickermule/rump/releases) page.
@@ -95,6 +89,7 @@ You can run `rump` in a container following the [Dockerfile.example](infra/Docke
 
 [nixtrace](https://github.com/nixtrace)
 
-## License
-
-Rump is licensed under the [MIT License](https://opensource.org/licenses/MIT)
+## Collaboration & License
+- [Contributing](docs/CONTRIBUTING.md)
+- [Code of Conduct](docs/CONTRIBUTING.md)
+- [MIT License](https://opensource.org/licenses/MIT)
