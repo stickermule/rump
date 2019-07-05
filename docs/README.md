@@ -2,6 +2,7 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/stickermule/rump)](https://goreportcard.com/report/github.com/stickermule/rump)
 [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/stickermule/rump)
+[![CI](https://img.shields.io/badge/ci-pass-green.svg)](https://godoc.org/github.com/stickermule/rump)
 
 Hot sync two Redis databases using dumps.
 
