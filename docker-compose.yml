@@ -6,8 +6,6 @@ services:
     build:
       context: ./
       dockerfile: infra/Dockerfile.dev
-    ports:
-      - "3000:3000"
     volumes:
       - ./:/app
       # cache dependencies
