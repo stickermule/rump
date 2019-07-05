@@ -17,6 +17,8 @@ steps:
 - id: redis
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
+    '--name', 'redis'
+    '--network', 'ci',
     '-p', '6379:6379',
     '-d',
     'redis:5.0-alpine']
@@ -25,6 +27,7 @@ steps:
 - id: test
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
+    '--network', 'ci',
     'rump:ci-$BRANCH_NAME',
     'go', 'test', './...']
   waitFor: ['lint']
