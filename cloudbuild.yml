@@ -14,6 +14,12 @@ steps:
     'golint', '-set_exit_status', './...']
   waitFor: ['build']
 
+- id: network
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['network',
+    'create', 'ci',
+  waitFor: ['lint']
+
 - id: redis
   name: 'gcr.io/cloud-builders/docker'
   args: ['run',
@@ -22,7 +28,7 @@ steps:
     '-p', '6379:6379',
     '-d',
     'redis:5.0-alpine']
-  waitFor: ['lint']
+  waitFor: ['network']
 
 - id: test
   name: 'gcr.io/cloud-builders/docker'
@@ -30,4 +36,4 @@ steps:
     '--network', 'ci',
     'rump:ci-$BRANCH_NAME',
     'go', 'test', './...']
-  waitFor: ['lint']
+  waitFor: ['network]
