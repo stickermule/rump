@@ -76,6 +76,7 @@ curl -SL https://github.com/stickermule/rump/releases/download/1.0.0/rump-1.0.0-
   && chmod +x rump;
 ./rump
 ```
+You can run `rump` in a container following the [Dockerfile.example](infra/Dockerfile.example).
 
 ## Mentions
 
