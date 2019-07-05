@@ -91,6 +91,6 @@ You can run `rump` in a container following the [Dockerfile.example](infra/Docke
 [nixtrace](https://github.com/nixtrace)
 
 ## Collaboration & License
-- [Contributing](docs/CONTRIBUTING.md)
-- [Code of Conduct](docs/CONTRIBUTING.md)
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CONTRIBUTING.md)
 - [MIT License](https://opensource.org/licenses/MIT)
