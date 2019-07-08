@@ -86,7 +86,7 @@ func ExampleRun_redisToRedisTTL() {
 			IsRedis: true,
 		},
 		Silent: false,
-		TTL: true,
+		TTL:    true,
 	}
 
 	run.Run(cfg)
@@ -109,7 +109,7 @@ func ExampleRun_redisToRedisSilent() {
 			URI:     "redis://redis:6379/10",
 			IsRedis: true,
 		},
-			Silent: true,
+		Silent: true,
 	}
 
 	run.Run(cfg)
