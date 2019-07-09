@@ -1,4 +1,4 @@
-![Rump](img/logo.svg?sanitize=true)  
+![Rump](img/logo.svg?sanitize=true)
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/stickermule/rump)](https://goreportcard.com/report/github.com/stickermule/rump)
 [![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/stickermule/rump)
@@ -82,9 +82,9 @@ You can run `rump` in a container following the [Dockerfile.example](/infra/Dock
 - [The Changelog](http://email.changelog.com/t/ViewEmail/t/13CBF627BB99BB74/)
 - [Go Weekly](http://golangweekly.com/issues/138)
 - [DB Weekly](http://dbweekly.com/issues/132)
-- [Redis Weekly](http://redisweekly.com/archive/172.html)
 - [Cron Weekly](https://www.cronweekly.com/issue-59/)
 - [Hacker News](https://news.ycombinator.com/front?day=2016-12-05&p=2)
+- Redis Weekly
 
 ## Maintainers
 
