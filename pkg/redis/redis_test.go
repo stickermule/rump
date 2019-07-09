@@ -46,22 +46,6 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func TestTTL(t *testing.T) {
-	// key := "key1"
-	// value := "value1"
-	// expected := "30000"
-
-	// db1.Do(radix.Cmd(nil, "SET", key, value))
-	// db1.Do(radix.Cmd(nil, "PEXPIRE", key, expected))
-
-	// var ttl string
-	// db1.Do(radix.Cmd(&ttl, "PTTL", key))
-
-	// if expected != ttl {
-	// 	t.Errorf("expected: %v, got: %v", expected, ttl)
-	// }
-}
-
 // Test db1 to db2 sync
 func TestReadWrite(t *testing.T) {
 	ch = make(message.Bus, 100)
