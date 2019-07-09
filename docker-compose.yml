@@ -1,0 +1,20 @@
+---
+version: '2.2'
+services:
+  rump:
+    init: true
+    build:
+      context: ./
+      dockerfile: infra/Dockerfile.dev
+    volumes:
+      - ./:/app
+      # cache dependencies
+      - deps:/go/pkg/mod
+  redis:
+    init: true
+    image: redis:5.0-alpine
+    ports:
+      - "6379:6379"
+volumes:
+  deps:
+    driver: local

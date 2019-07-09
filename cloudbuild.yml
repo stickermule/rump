@@ -1,0 +1,39 @@
+steps:
+
+- id: build
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['build',
+    '-t', 'rump:ci-$BRANCH_NAME',
+    '-f', 'infra/Dockerfile.ci', '.']
+  waitFor: ['-']
+
+- id: lint
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['run',
+    'rump:ci-$BRANCH_NAME',
+    'golint', '-set_exit_status', './...']
+  waitFor: ['build']
+
+- id: network
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['network',
+    'create', 'ci']
+  waitFor: ['lint']
+
+- id: redis
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['run',
+    '--name', 'redis',
+    '--network', 'ci',
+    '-p', '6379:6379',
+    '-d',
+    'redis:5.0-alpine']
+  waitFor: ['network']
+
+- id: test
+  name: 'gcr.io/cloud-builders/docker'
+  args: ['run',
+    '--network', 'ci',
+    'rump:ci-$BRANCH_NAME',
+    'go', 'test', './...']
+  waitFor: ['network']
