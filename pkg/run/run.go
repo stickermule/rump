@@ -34,7 +34,7 @@ func Run(cfg config.Config) {
 	})
 
 	// Create shared message bus
-	ch := make(message.Bus, 100)
+	ch := make(message.Bus, 1)
 
 	// Create and run either a Redis or File Source reader.
 	if cfg.Source.IsRedis {

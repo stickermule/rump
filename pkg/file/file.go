@@ -119,16 +119,20 @@ func (f *File) Write(ctx context.Context) error {
 			fmt.Println("file write: exit")
 			return ctx.Err()
 		// Get Messages from Bus
-		case p, ok := <-f.Bus:
+		case batch, ok := <-f.Bus:
 			// if channel closed, set to nil, break loop
 			if !ok {
 				f.Bus = nil
 				continue
 			}
-			_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝" + p.TTL + "✝✝")
-			if err != nil {
-				return err
+
+			for _, p := range batch {
+				_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝" + p.TTL + "✝✝")
+				if err != nil {
+					return err
+				}
 			}
+
 			f.maybeLog("w")
 		}
 	}

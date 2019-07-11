@@ -10,4 +10,4 @@ type Payload struct {
 }
 
 // Bus is a channel where message Payloads pass.
-type Bus chan Payload
+type Bus chan []*Payload
