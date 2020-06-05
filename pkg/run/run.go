@@ -49,7 +49,7 @@ func Run(cfg config.Config) {
 			return source.Read(gctx)
 		})
 	} else {
-		source := file.New(cfg.Source.URI, ch, cfg.Silent, cfg.TTL)
+		source := file.New(cfg.Source.URI, ch, cfg.Silent, cfg.TTL, cfg.MaxBuf)
 
 		g.Go(func() error {
 			return source.Read(gctx)
@@ -70,7 +70,7 @@ func Run(cfg config.Config) {
 			return target.Write(gctx)
 		})
 	} else {
-		target := file.New(cfg.Target.URI, ch, cfg.Silent, cfg.TTL)
+		target := file.New(cfg.Target.URI, ch, cfg.Silent, cfg.TTL, cfg.MaxBuf)
 
 		g.Go(func() error {
 			defer cancel()
