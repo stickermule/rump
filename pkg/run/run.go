@@ -3,8 +3,10 @@ package run
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/mediocregopher/radix/v3"
 	"golang.org/x/sync/errgroup"
@@ -20,6 +22,16 @@ import (
 func exit(e error) {
 	fmt.Println(e)
 	os.Exit(1)
+}
+
+func authConn(authPass string) radix.ConnFunc {
+	return func(network, address string) (radix.Conn, error) {
+		return radix.Dial(network, address,
+			radix.DialTimeout(1*time.Minute),
+			radix.DialAuthPass(authPass),
+			radix.DialUseTLS(&tls.Config{}),
+		)
+	}
 }
 
 // Run orchestrate the Reader, Writer and Signal handler.
@@ -38,9 +50,21 @@ func Run(cfg config.Config) {
 
 	// Create and run either a Redis or File Source reader.
 	if cfg.Source.IsRedis {
-		db, err := radix.NewPool("tcp", cfg.Source.URI, 1)
-		if err != nil {
-			exit(err)
+		var db *radix.Pool
+		var err error
+
+		if len(cfg.Source.Auth) > 0 {
+			db, err = radix.NewPool("tcp", cfg.Source.URI, 1, radix.PoolConnFunc(authConn(cfg.Source.Auth)))
+
+			if err != nil {
+				exit(err)
+			}
+		} else {
+			db, err = radix.NewPool("tcp", cfg.Source.URI, 1)
+
+			if err != nil {
+				exit(err)
+			}
 		}
 
 		source := redis.New(db, ch, cfg.Silent, cfg.TTL)
@@ -58,9 +82,21 @@ func Run(cfg config.Config) {
 
 	// Create and run either a Redis or File Target writer.
 	if cfg.Target.IsRedis {
-		db, err := radix.NewPool("tcp", cfg.Target.URI, 1)
-		if err != nil {
-			exit(err)
+		var db *radix.Pool
+		var err error
+
+		if len(cfg.Target.Auth) > 0 {
+			db, err = radix.NewPool("tcp", cfg.Target.URI, 1, radix.PoolConnFunc(authConn(cfg.Target.Auth)))
+
+			if err != nil {
+				exit(err)
+			}
+		} else {
+			db, err = radix.NewPool("tcp", cfg.Target.URI, 1)
+
+			if err != nil {
+				exit(err)
+			}
 		}
 
 		target := redis.New(db, ch, cfg.Silent, cfg.TTL)
