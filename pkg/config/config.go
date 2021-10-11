@@ -39,6 +39,7 @@ func exit(e error) {
 // and return is redis or not and auth string if it's specified.
 func getRedisOptions(conn string) (bool, string, string) {
 	var redisPrefix string = "redis://"
+	var redisTlsPrefix string = "rediss://"
 	var authSeparator string = "@"
 	var isRedis bool
 	var auth string
@@ -46,9 +47,11 @@ func getRedisOptions(conn string) (bool, string, string) {
 
 	if strings.HasPrefix(conn, redisPrefix) {
 		isRedis = true
+	} else if strings.HasPrefix(conn, redisTlsPrefix) {
+		isRedis = true
 
 		if strings.Contains(conn, authSeparator) {
-			auth = strings.Split(strings.TrimPrefix(conn, redisPrefix), authSeparator)[0]
+			auth = strings.Split(strings.TrimPrefix(conn, redisTlsPrefix), authSeparator)[0]
 			uri = redisPrefix + strings.Split(conn, authSeparator)[1]
 		}
 	}
