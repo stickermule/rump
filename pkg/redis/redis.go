@@ -4,6 +4,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/mediocregopher/radix/v3"
 
@@ -14,19 +15,25 @@ import (
 // Silent disables verbose mode.
 // TTL enables TTL sync.
 type Redis struct {
-	Pool   *radix.Pool
-	Bus    message.Bus
-	Silent bool
-	TTL    bool
+	Pool       *radix.Pool
+	Bus        message.Bus
+	Silent     bool
+	TTL        bool
+	DefaultTTL int
+	Count      int
+	Pattern    string
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
+func New(source *radix.Pool, bus message.Bus, silent, ttl bool, defaultTTL int, count int, pattern string) *Redis {
 	return &Redis{
-		Pool:   source,
-		Bus:    bus,
-		Silent: silent,
-		TTL:    ttl,
+		Pool:       source,
+		Bus:        bus,
+		Silent:     silent,
+		TTL:        ttl,
+		DefaultTTL: defaultTTL,
+		Count:      count,
+		Pattern:    pattern,
 	}
 }
 
@@ -42,7 +49,7 @@ func (r *Redis) maybeLog(s string) {
 func (r *Redis) maybeTTL(key string) (string, error) {
 	// noop if TTL is disabled, speeds up sync process
 	if !r.TTL {
-		return "0", nil
+		return strconv.FormatInt(int64(r.DefaultTTL), 10), nil
 	}
 
 	var ttl string
@@ -69,7 +76,7 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 func (r *Redis) Read(ctx context.Context) error {
 	defer close(r.Bus)
 
-	scanner := radix.NewScanner(r.Pool, radix.ScanAllKeys)
+	scanner := radix.NewScanner(r.Pool, r.scanOption())
 
 	var key string
 	var value string
@@ -127,4 +134,12 @@ func (r *Redis) Write(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func (r *Redis) scanOption() radix.ScanOpts {
+	return radix.ScanOpts{
+		Command: "SCAN",
+		Pattern: r.Pattern,
+		Count:   r.Count,
+	}
 }

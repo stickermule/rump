@@ -67,7 +67,7 @@ func Run(cfg config.Config) {
 			}
 		}
 
-		source := redis.New(db, ch, cfg.Silent, cfg.TTL)
+		source := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern)
 
 		g.Go(func() error {
 			return source.Read(gctx)
@@ -99,7 +99,7 @@ func Run(cfg config.Config) {
 			}
 		}
 
-		target := redis.New(db, ch, cfg.Silent, cfg.TTL)
+		target := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern)
 
 		g.Go(func() error {
 			defer cancel()
