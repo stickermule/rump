@@ -57,6 +57,10 @@ func getRedisOptions(conn string) (bool, string, string) {
 
 		if strings.Contains(conn, authSeparator) {
 			auth = strings.Split(strings.TrimPrefix(conn, redisTlsPrefix), authSeparator)[0]
+			// Remove user/pass separator
+			if auth[0] == ':' {
+				auth = auth[1:]
+			}
 			uri = redisPrefix + strings.Split(conn, authSeparator)[1]
 		}
 	}
