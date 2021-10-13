@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/mediocregopher/radix/v3"
@@ -54,20 +55,20 @@ func Run(cfg config.Config) {
 		var err error
 
 		if len(cfg.Source.Auth) > 0 {
-			db, err = radix.NewPool("tcp", cfg.Source.URI, 1, radix.PoolConnFunc(authConn(cfg.Source.Auth)))
+			db, err = radix.NewPool("tcp", cfg.Source.URI, cfg.ReadParallel, radix.PoolConnFunc(authConn(cfg.Source.Auth)))
 
 			if err != nil {
 				exit(err)
 			}
 		} else {
-			db, err = radix.NewPool("tcp", cfg.Source.URI, 1)
+			db, err = radix.NewPool("tcp", cfg.Source.URI, cfg.ReadParallel)
 
 			if err != nil {
 				exit(err)
 			}
 		}
 
-		source := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern)
+		source := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern, cfg.ReadParallel)
 
 		g.Go(func() error {
 			return source.Read(gctx)
@@ -86,25 +87,31 @@ func Run(cfg config.Config) {
 		var err error
 
 		if len(cfg.Target.Auth) > 0 {
-			db, err = radix.NewPool("tcp", cfg.Target.URI, 1, radix.PoolConnFunc(authConn(cfg.Target.Auth)))
+			db, err = radix.NewPool("tcp", cfg.Target.URI, cfg.WriteParallel, radix.PoolConnFunc(authConn(cfg.Target.Auth)))
 
 			if err != nil {
 				exit(err)
 			}
 		} else {
-			db, err = radix.NewPool("tcp", cfg.Target.URI, 1)
+			db, err = radix.NewPool("tcp", cfg.Target.URI, cfg.WriteParallel)
 
 			if err != nil {
 				exit(err)
 			}
 		}
 
-		target := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern)
+		target := redis.New(db, ch, cfg.Silent, cfg.TTL, cfg.DefaultTTL, cfg.Count, cfg.Pattern, cfg.WriteParallel)
 
-		g.Go(func() error {
-			defer cancel()
-			return target.Write(gctx)
-		})
+		var wg sync.WaitGroup
+		for i := 0; i < cfg.WriteParallel; i++ {
+			wg.Add(1)
+			g.Go(func() error {
+				defer wg.Done()
+				return target.Write(gctx)
+			})
+		}
+		wg.Wait()
+		cancel()
 	} else {
 		target := file.New(cfg.Target.URI, ch, cfg.Silent, cfg.TTL)
 
@@ -119,6 +126,6 @@ func Run(cfg config.Config) {
 	if err != nil && err != context.Canceled {
 		exit(err)
 	} else {
-		fmt.Println("done")
+		fmt.Println("done write")
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 
 	"github.com/mediocregopher/radix/v3"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/stickermule/rump/pkg/message"
 )
@@ -17,15 +18,17 @@ import (
 type Redis struct {
 	Pool       *radix.Pool
 	Bus        message.Bus
+	ReadBus    message.Bus
 	Silent     bool
 	TTL        bool
 	DefaultTTL int
 	Count      int
 	Pattern    string
+	Parallel   int
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus, silent, ttl bool, defaultTTL int, count int, pattern string) *Redis {
+func New(source *radix.Pool, bus message.Bus, silent, ttl bool, defaultTTL int, count int, pattern string, parallel int) *Redis {
 	return &Redis{
 		Pool:       source,
 		Bus:        bus,
@@ -34,6 +37,7 @@ func New(source *radix.Pool, bus message.Bus, silent, ttl bool, defaultTTL int, 
 		DefaultTTL: defaultTTL,
 		Count:      count,
 		Pattern:    pattern,
+		Parallel:   parallel,
 	}
 }
 
@@ -77,35 +81,92 @@ func (r *Redis) Read(ctx context.Context) error {
 	defer close(r.Bus)
 
 	scanner := radix.NewScanner(r.Pool, r.scanOption())
+	defer scanner.Close()
 
 	var key string
-	var value string
-	var ttl string
+
+	// Create read workers
+	g, gctx := errgroup.WithContext(ctx)
+
+	// Create shared message bus
+	r.ReadBus = make(message.Bus, 100)
+
+	for i := 0; i < r.Parallel; i++ {
+		g.Go(func() error {
+			return r.ReadKey(gctx)
+		})
+	}
 
 	// Scan and push to bus until no keys are left.
 	// If context Done, exit early.
 	for scanner.Next(&key) {
-		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
-		if err != nil {
-			return err
-		}
-
-		ttl, err = r.maybeTTL(key)
-		if err != nil {
-			return err
-		}
-
 		select {
+		// Exit early if context done.
 		case <-ctx.Done():
 			fmt.Println("")
-			fmt.Println("redis read: exit")
+			fmt.Println("redis read master: exit")
 			return ctx.Err()
-		case r.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
-			r.maybeLog("r")
+		case r.ReadBus <- message.Payload{Key: key}:
+			// Do we need log here?
 		}
 	}
 
-	return scanner.Close()
+	close(r.ReadBus)
+
+	// Block and wait for goroutines
+	err := g.Wait()
+	if err != nil && err != context.Canceled {
+		return err
+	} else {
+		fmt.Println("done read")
+	}
+
+	return nil
+}
+
+// ReadKey dump the key/value from redis and send to bus
+func (r *Redis) ReadKey(ctx context.Context) error {
+	for r.ReadBus != nil {
+		select {
+		// Exit early if context done.
+		case <-ctx.Done():
+			fmt.Println("")
+			fmt.Println("redis worker: exit")
+			return ctx.Err()
+			// Get Messages from Bus
+		case p, ok := <-r.ReadBus:
+			// if channel closed, set to nil, break loop
+			if !ok {
+				r.ReadBus = nil
+				continue
+			}
+
+			var value string
+			var ttl string
+			key := p.Key
+
+			err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
+			if err != nil {
+				return err
+			}
+
+			ttl, err = r.maybeTTL(key)
+			if err != nil {
+				return err
+			}
+
+			select {
+			case <-ctx.Done():
+				fmt.Println("")
+				fmt.Println("redis read: exit")
+				return ctx.Err()
+			case r.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
+				r.maybeLog("r")
+			}
+		}
+	}
+
+	return nil
 }
 
 // Write restores keys on the db as they come on the message bus.
