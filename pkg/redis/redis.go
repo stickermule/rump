@@ -155,6 +155,11 @@ func (r *Redis) ReadKey(ctx context.Context) error {
 				return err
 			}
 
+			if ttl == "-2" {
+				// expired key
+				continue
+			}
+
 			select {
 			case <-ctx.Done():
 				fmt.Println("")
