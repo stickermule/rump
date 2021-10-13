@@ -138,7 +138,7 @@ func (r *Redis) ReadKey(ctx context.Context) error {
 			// if channel closed, set to nil, break loop
 			if !ok {
 				r.ReadBus = nil
-				continue
+				break
 			}
 
 			var value string
@@ -189,7 +189,7 @@ func (r *Redis) Write(ctx context.Context) error {
 			// if channel closed, set to nil, break loop
 			if !ok {
 				r.Bus = nil
-				continue
+				break
 			}
 			err := r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, p.TTL, p.Value, "REPLACE"))
 			if err != nil {

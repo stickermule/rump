@@ -111,7 +111,7 @@ func Run(cfg config.Config) {
 			})
 		}
 		wg.Wait()
-		cancel()
+		cancel() // stop signal handler goroutine
 	} else {
 		target := file.New(cfg.Target.URI, ch, cfg.Silent, cfg.TTL)
 
@@ -126,6 +126,6 @@ func Run(cfg config.Config) {
 	if err != nil && err != context.Canceled {
 		exit(err)
 	} else {
-		fmt.Println("done write")
+		fmt.Println("done")
 	}
 }
