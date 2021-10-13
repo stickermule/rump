@@ -117,8 +117,6 @@ func (r *Redis) Read(ctx context.Context) error {
 	err := g.Wait()
 	if err != nil && err != context.Canceled {
 		return err
-	} else {
-		fmt.Println("done read")
 	}
 
 	return nil
