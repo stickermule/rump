@@ -3,7 +3,6 @@ package run
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"os"
 	"time"
@@ -24,13 +23,22 @@ func exit(e error) {
 	os.Exit(1)
 }
 
-func authConn(authPass string) radix.ConnFunc {
-	return func(network, address string) (radix.Conn, error) {
-		return radix.Dial(network, address,
-			radix.DialTimeout(1*time.Minute),
-			radix.DialAuthPass(authPass),
-			radix.DialUseTLS(&tls.Config{}),
-		)
+func authConn(authPass string, tls bool) radix.ConnFunc {
+	if tls {
+		return func(network, address string) (radix.Conn, error) {
+			return radix.Dial(network, address,
+				radix.DialTimeout(1*time.Minute),
+				radix.DialAuthPass(authPass),
+				radix.DialUseTLS(&tls.Config{}),
+			)
+		}
+	} else {
+		return func(network, address string) (radix.Conn, error) {
+			return radix.Dial(network, address,
+				radix.DialTimeout(1*time.Minute),
+				radix.DialAuthPass(authPass),
+			)
+		}
 	}
 }
 
@@ -54,7 +62,7 @@ func Run(cfg config.Config) {
 		var err error
 
 		if len(cfg.Source.Auth) > 0 {
-			db, err = radix.NewPool("tcp", cfg.Source.URI, 1, radix.PoolConnFunc(authConn(cfg.Source.Auth)))
+			db, err = radix.NewPool("tcp", cfg.Source.URI, 1, radix.PoolConnFunc(authConn(cfg.Source.Auth, cfg.Source.TLS)))
 
 			if err != nil {
 				exit(err)
@@ -86,7 +94,7 @@ func Run(cfg config.Config) {
 		var err error
 
 		if len(cfg.Target.Auth) > 0 {
-			db, err = radix.NewPool("tcp", cfg.Target.URI, 1, radix.PoolConnFunc(authConn(cfg.Target.Auth)))
+			db, err = radix.NewPool("tcp", cfg.Target.URI, 1, radix.PoolConnFunc(authConn(cfg.Target.Auth, cfg.Target.TLS)))
 
 			if err != nil {
 				exit(err)
