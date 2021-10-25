@@ -81,7 +81,7 @@ func validate(from, to string, silent, ttl bool) (Config, error) {
 	}
 
 	cfg.Source.IsRedis, cfg.Source.URI, cfg.Source.Auth, cfg.Source.TLS = getRedisOptions(from)
-	cfg.Target.IsRedis, cfg.Target.URI, cfg.Target.Auth = getRedisOptions(to)
+	cfg.Target.IsRedis, cfg.Target.URI, cfg.Target.Auth, cfg.Source.TLS = getRedisOptions(to)
 
 	// Guard from incorrect usage.
 	switch {

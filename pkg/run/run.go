@@ -3,6 +3,7 @@ package run
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"os"
 	"time"
@@ -23,8 +24,8 @@ func exit(e error) {
 	os.Exit(1)
 }
 
-func authConn(authPass string, tls bool) radix.ConnFunc {
-	if tls {
+func authConn(authPass string, useTls bool) radix.ConnFunc {
+	if useTls {
 		return func(network, address string) (radix.Conn, error) {
 			return radix.Dial(network, address,
 				radix.DialTimeout(1*time.Minute),
