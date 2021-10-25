@@ -48,6 +48,37 @@ func TestFromRedisToRedis(t *testing.T) {
 	}
 }
 
+func TestFromRedisToRedisWithAuth(t *testing.T) {
+	cfg, err := validate("redis://a@s", "redis://b@t", false, false)
+	if err != nil {
+		t.Error("from redis to redis should work")
+	}
+
+	if !cfg.Source.IsRedis {
+		t.Error("wrong from")
+	}
+
+	if !cfg.Target.IsRedis {
+		t.Error("wrong to")
+	}
+
+	if cfg.Source.URI != "redis://s" {
+		t.Error("wrong source")
+	}
+
+	if cfg.Source.Auth != "a" {
+		t.Error("wrong source auth")
+	}
+
+	if cfg.Target.URI != "redis://t" {
+		t.Error("wrong target")
+	}
+
+	if cfg.Target.Auth != "b" {
+		t.Error("wrong target auth")
+	}
+}
+
 func TestFromRedisToFile(t *testing.T) {
 	cfg, err := validate("redis://s", "/t.rump", false, false)
 	if err != nil {
