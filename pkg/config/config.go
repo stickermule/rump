@@ -71,11 +71,11 @@ func validate(from, to string, silent, ttl bool) (Config, error) {
 	}
 
 	switch {
-	case !cfg.Source.IsRedis():
+	case cfg.Source.String() == "":
 		return cfg, fmt.Errorf("source not valid redis url")
-	case !cfg.Target.IsRedis():
+	case cfg.Target.String() == "":
 		return cfg, fmt.Errorf("target not valid redis url")
-	case cfg.Source.IsRedis() && !cfg.Target.IsRedis():
+	case !cfg.Source.IsRedis() && !cfg.Target.IsRedis():
 		return cfg, fmt.Errorf("file-only operations not supported")
 	}
 

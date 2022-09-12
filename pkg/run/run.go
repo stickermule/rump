@@ -42,22 +42,11 @@ func Run(cfg config.Config) {
 
 	// Create and run either a Redis or File Source reader.
 	if cfg.Source.IsRedis() {
-		var db *radix.Cluster
+		var db *radix.Pool
 		var err error
 
 		if cfg.Source.IsSecure() {
-
-			// p, _ := cfg.Source.User.Password()
-			// err := db.Do(radix.Cmd(nil, "AUTH", p))
-			// if err != nil {
-			// 	log.Printf("redis error returned: %s", "wrong pass")
-			// }
-
-			poolFunc := func(network, addr string) (radix.Client, error) {
-				return radix.NewPool(network, addr, 1, radix.PoolConnFunc(authConn(cfg.Source)))
-			}
-
-			db, err = radix.NewCluster([]string{cfg.Source.FormattedString()}, radix.ClusterPoolFunc(poolFunc))
+			db, err = radix.NewPool("tcp", cfg.Source.FormattedString(), 1, radix.PoolConnFunc(authConn(cfg.Source)))
 		}
 
 		if err != nil {
@@ -88,14 +77,10 @@ func Run(cfg config.Config) {
 
 	// Create and run either a Redis or File Target writer.
 	if cfg.Target.IsRedis() {
-		var db *radix.Cluster
+		var db *radix.Pool
 		var err error
 
-		poolFunc := func(network, addr string) (radix.Client, error) {
-			return radix.NewPool(network, addr, 1, radix.PoolConnFunc(authConn(cfg.Source)))
-		}
-
-		db, err = radix.NewCluster([]string{cfg.Target.FormattedString()}, radix.ClusterPoolFunc(poolFunc))
+		db, err = radix.NewPool("tcp", cfg.Target.FormattedString(), 1, radix.PoolConnFunc(authConn(cfg.Target)))
 
 		if err != nil {
 			exit(err)

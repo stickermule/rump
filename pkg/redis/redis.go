@@ -14,14 +14,14 @@ import (
 // Silent disables verbose mode.
 // TTL enables TTL sync.
 type Redis struct {
-	Pool   *radix.Cluster
+	Pool   *radix.Pool
 	Bus    message.Bus
 	Silent bool
 	TTL    bool
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Cluster, bus message.Bus, silent, ttl bool) *Redis {
+func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
 	return &Redis{
 		Pool:   source,
 		Bus:    bus,
@@ -46,9 +46,11 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 	}
 
 	var ttl string
+	var err error
 
 	// Try getting key TTL.
-	err := r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
+	err = r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
+
 	if err != nil {
 		return ttl, err
 	}
@@ -69,11 +71,7 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 func (r *Redis) Read(ctx context.Context) error {
 	defer close(r.Bus)
 
-	r.maybeLog("starting to read")
-
-	scanner := r.Pool.NewScanner(radix.ScanAllKeys)
-
-	r.maybeLog("starting to scan")
+	scanner := radix.NewScanner(r.Pool, radix.ScanAllKeys)
 
 	var key string
 	var value string
@@ -82,8 +80,6 @@ func (r *Redis) Read(ctx context.Context) error {
 	// Scan and push to bus until no keys are left.
 	// If context Done, exit early.
 	for scanner.Next(&key) {
-
-		r.maybeLog("dump")
 
 		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
 		if err != nil {

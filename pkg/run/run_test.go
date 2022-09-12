@@ -15,6 +15,7 @@ package run_test
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/mediocregopher/radix/v3"
@@ -53,15 +54,12 @@ func ExampleRun_redisToRedis() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("redis://redis:6379/10")
+
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "redis://redis:6379/10",
-			IsRedis: true,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 		Silent: false,
 	}
 
@@ -76,15 +74,12 @@ func ExampleRun_redisToRedisTTL() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("redis://redis:6379/10")
+
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "redis://redis:6379/10",
-			IsRedis: true,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 		Silent: false,
 		TTL:    true,
 	}
@@ -100,15 +95,12 @@ func ExampleRun_redisToRedisSilent() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("redis://redis:6379/10")
+
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "redis://redis:6379/10",
-			IsRedis: true,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 		Silent: true,
 	}
 
@@ -122,15 +114,12 @@ func ExampleRun_redisToFile() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("/app/dump.rump")
+
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 	}
 
 	run.Run(cfg)
@@ -144,16 +133,13 @@ func ExampleRun_redisToFileTTL() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("/app/dump.rump")
+
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
-		TTL: true,
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
+		TTL:    true,
 	}
 
 	run.Run(cfg)
@@ -167,27 +153,18 @@ func ExampleRun_fileToRedis() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("/app/dump.rump")
+
 	cfgFileDump := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 	}
 	run.Run(cfgFileDump)
 
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
-		Target: config.Resource{
-			URI:     "redis://redis:6379/10",
-			IsRedis: true,
-		},
+		Source: config.Resource{*to},
+		Target: config.Resource{*from},
 	}
 	run.Run(cfg)
 	// Output:
@@ -203,28 +180,19 @@ func ExampleRun_fileToRedisTTL() {
 	setup()
 	defer teardown()
 
+	from, _ := url.Parse("redis://redis:6379/9")
+	to, _ := url.Parse("/app/dump.rump")
+
 	cfgFileDump := config.Config{
-		Source: config.Resource{
-			URI:     "redis://redis:6379/9",
-			IsRedis: true,
-		},
-		Target: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
+		Source: config.Resource{*from},
+		Target: config.Resource{*to},
 	}
 	run.Run(cfgFileDump)
 
 	cfg := config.Config{
-		Source: config.Resource{
-			URI:     "/app/dump.rump",
-			IsRedis: false,
-		},
-		Target: config.Resource{
-			URI:     "redis://redis:6379/10",
-			IsRedis: true,
-		},
-		TTL: true,
+		Source: config.Resource{*to},
+		Target: config.Resource{*from},
+		TTL:    true,
 	}
 	run.Run(cfg)
 	// Output:
