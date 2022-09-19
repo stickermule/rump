@@ -131,3 +131,8 @@ func (r *Redis) Write(ctx context.Context) error {
 
 	return nil
 }
+
+func (r *Redis) Monitor(ctx context.Context) error {
+	err := r.Pool.Do(radix.Cmd(nil, "MONITOR", ""))
+	return err
+}

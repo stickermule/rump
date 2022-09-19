@@ -1,4 +1,4 @@
-FROM golang:1.12.4-alpine
+FROM golang:1.18-alpine
 
 # disable cgo to avoid gcc requirement bug
 ENV CGO_ENABLED=0
