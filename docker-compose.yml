@@ -15,6 +15,11 @@ services:
     image: redis:5.0-alpine
     ports:
       - "6379:6379"
+  redisNew:
+    init: true
+    image: redis:5.0-alpine
+    ports:
+      - "6380:6379"
 volumes:
   deps:
     driver: local

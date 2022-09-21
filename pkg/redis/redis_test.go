@@ -17,10 +17,20 @@ var db1 *radix.Pool
 var db2 *radix.Pool
 var ch message.Bus
 var expected map[string]string
+var err error
+
+func errorReport(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+}
 
 func setup() {
-	db1, _ = radix.NewPool("tcp", "redis://redis:6379/3", 1)
-	db2, _ = radix.NewPool("tcp", "redis://redis:6379/4", 1)
+	db1, err = radix.NewPool("tcp", "redis://redis:6379/3", 1)
+	errorReport(err)
+	db2, err = radix.NewPool("tcp", "redis://redis:6379/4", 1)
+	errorReport(err)
 	expected = make(map[string]string)
 
 	// generate source test data on db1

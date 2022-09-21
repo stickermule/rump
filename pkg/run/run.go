@@ -4,9 +4,10 @@ package run
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
-	"github.com/mediocregopher/radix/v3"
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/stickermule/rump/pkg/config"
@@ -37,19 +38,38 @@ func Run(cfg config.Config) {
 	ch := make(message.Bus, 100)
 
 	// Create and run either a Redis or File Source reader.
-	if cfg.Source.IsRedis {
-		db, err := radix.NewPool("tcp", cfg.Source.URI, 1)
-		if err != nil {
-			exit(err)
+	if cfg.Source.IsRedis() {
+
+		if cfg.Source.IsCluster() {
+			source, err := redis.NewCluster(cfg.Source.FormattedString(), cfg, ch)
+			if err != nil {
+				exit(err)
+			}
+
+			g.Go(func() error {
+				if err := source.Read(gctx); err != nil {
+					log.Fatal(errors.Wrap(err, "reading from source"))
+				}
+
+				return err
+			})
+		} else {
+			source, err := redis.New(cfg.Source.FormattedString(), cfg, ch)
+			if err != nil {
+				exit(err)
+			}
+
+			g.Go(func() error {
+				if err := source.Read(gctx); err != nil {
+					log.Fatal(err)
+				}
+
+				return err
+			})
 		}
 
-		source := redis.New(db, ch, cfg.Silent, cfg.TTL)
-
-		g.Go(func() error {
-			return source.Read(gctx)
-		})
 	} else {
-		source := file.New(cfg.Source.URI, ch, cfg.Silent, cfg.TTL)
+		source := file.New(cfg.Source.String(), ch, cfg.Silent, cfg.TTL)
 
 		g.Go(func() error {
 			return source.Read(gctx)
@@ -57,20 +77,33 @@ func Run(cfg config.Config) {
 	}
 
 	// Create and run either a Redis or File Target writer.
-	if cfg.Target.IsRedis {
-		db, err := radix.NewPool("tcp", cfg.Target.URI, 1)
-		if err != nil {
-			exit(err)
+	if cfg.Target.IsRedis() {
+
+		if cfg.Target.IsCluster() {
+			target, err := redis.NewCluster(cfg.Target.FormattedString(), cfg, ch)
+
+			if err != nil {
+				exit(err)
+			}
+
+			g.Go(func() error {
+				defer cancel()
+				return target.Write(gctx)
+			})
+		} else {
+			target, err := redis.New(cfg.Target.FormattedString(), cfg, ch)
+			if err != nil {
+				exit(err)
+			}
+
+			g.Go(func() error {
+				defer cancel()
+				return target.Write(gctx)
+			})
 		}
 
-		target := redis.New(db, ch, cfg.Silent, cfg.TTL)
-
-		g.Go(func() error {
-			defer cancel()
-			return target.Write(gctx)
-		})
 	} else {
-		target := file.New(cfg.Target.URI, ch, cfg.Silent, cfg.TTL)
+		target := file.New(cfg.Target.String(), ch, cfg.Silent, cfg.TTL)
 
 		g.Go(func() error {
 			defer cancel()
@@ -81,7 +114,7 @@ func Run(cfg config.Config) {
 	// Block and wait for goroutines
 	err := g.Wait()
 	if err != nil && err != context.Canceled {
-		exit(err)
+		exit(errors.Wrap(err, "error in process"))
 	} else {
 		fmt.Println("done")
 	}

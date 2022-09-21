@@ -4,15 +4,30 @@ package config
 import (
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
-	"strings"
 )
 
 // Resource can be either Redis (isRedis) or file.
 // URI is either a Redis URI or a file path.
 type Resource struct {
-	URI     string
-	IsRedis bool
+	url.URL
+}
+
+func (r Resource) IsRedis() bool {
+	return contains([]string{"redis", "rediss", "credis", "crediss"}, r.Scheme)
+}
+
+func (r Resource) IsSecure() bool {
+	return r.Scheme == "rediss" || r.Scheme == "crediss"
+}
+
+func (r Resource) IsCluster() bool {
+	return r.Scheme == "credis" || r.Scheme == "crediss"
+}
+
+func (r Resource) FormattedString() string {
+	return fmt.Sprintf("redis://%v", r.Host)
 }
 
 // Config represents the current source and target config.
@@ -34,35 +49,49 @@ func exit(e error) {
 	os.Exit(1)
 }
 
+// https://play.golang.org/p/Qg_uv_inCek
+// contains checks if a string is present in a slice
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
+}
+
 // validate makes sure from and to are Redis URIs or file paths,
 // and generates the final Config.
 func validate(from, to string, silent, ttl bool) (Config, error) {
+
+	source, err := url.Parse(from)
+	if err != nil {
+		return Config{}, err
+	}
+
+	target, err := url.Parse(to)
+	if err != nil {
+		return Config{}, err
+	}
+
 	cfg := Config{
 		Source: Resource{
-			URI: from,
+			*source,
 		},
 		Target: Resource{
-			URI: to,
+			*target,
 		},
 		Silent: silent,
 		TTL:    ttl,
 	}
 
-	if strings.HasPrefix(from, "redis://") {
-		cfg.Source.IsRedis = true
-	}
-
-	if strings.HasPrefix(to, "redis://") {
-		cfg.Target.IsRedis = true
-	}
-
-	// Guard from incorrect usage.
 	switch {
-	case cfg.Source.URI == "":
-		return cfg, fmt.Errorf("from is required")
-	case cfg.Target.URI == "":
-		return cfg, fmt.Errorf("to is required")
-	case !cfg.Source.IsRedis && !cfg.Target.IsRedis:
+	case cfg.Source.String() == "":
+		return cfg, fmt.Errorf("source not valid redis url")
+	case cfg.Target.String() == "":
+		return cfg, fmt.Errorf("target not valid redis url")
+	case !cfg.Source.IsRedis() && !cfg.Target.IsRedis():
 		return cfg, fmt.Errorf("file-only operations not supported")
 	}
 

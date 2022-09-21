@@ -7,6 +7,7 @@ import (
 
 	"github.com/mediocregopher/radix/v3"
 
+	"github.com/stickermule/rump/pkg/config"
 	"github.com/stickermule/rump/pkg/message"
 )
 
@@ -21,13 +22,16 @@ type Redis struct {
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
+func New(addr string, cfg config.Config, bus message.Bus) (*Redis, error) {
+
+	source, err := radix.NewPool("tcp", addr, 1, radix.PoolConnFunc(authConn(cfg.Source)))
+
 	return &Redis{
 		Pool:   source,
 		Bus:    bus,
-		Silent: silent,
-		TTL:    ttl,
-	}
+		Silent: cfg.Silent,
+		TTL:    cfg.TTL,
+	}, err
 }
 
 // maybeLog may log, depending on the Silent flag
@@ -46,9 +50,11 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 	}
 
 	var ttl string
+	var err error
 
 	// Try getting key TTL.
-	err := r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
+	err = r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
+
 	if err != nil {
 		return ttl, err
 	}
@@ -78,6 +84,7 @@ func (r *Redis) Read(ctx context.Context) error {
 	// Scan and push to bus until no keys are left.
 	// If context Done, exit early.
 	for scanner.Next(&key) {
+
 		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
 		if err != nil {
 			return err
@@ -123,6 +130,35 @@ func (r *Redis) Write(ctx context.Context) error {
 				return err
 			}
 			r.maybeLog("w")
+		}
+	}
+
+	return nil
+}
+
+func (r *Redis) Monitor(ctx context.Context) error {
+
+	// Loop until channel is open
+	for r.Bus != nil {
+		select {
+		// Exit early if context done.
+		case <-ctx.Done():
+			fmt.Println("")
+			fmt.Println("redis write: exit")
+			return ctx.Err()
+		// Get Messages from Bus
+		case p, ok := <-r.Bus:
+			// if channel closed, set to nil, break loop
+			if !ok {
+				r.Bus = nil
+				continue
+			}
+			err := r.Pool.Do(radix.Cmd(&p.Value, "MONITOR", ""))
+			if err != nil {
+				return err
+			}
+
+			r.maybeLog(p.Value)
 		}
 	}
 
