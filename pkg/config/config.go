@@ -15,11 +15,15 @@ type Resource struct {
 }
 
 func (r Resource) IsRedis() bool {
-	return r.Scheme == "redis" || r.Scheme == "rediss"
+	return contains([]string{"redis", "rediss", "credis", "crediss"}, r.Scheme)
 }
 
 func (r Resource) IsSecure() bool {
-	return r.Scheme == "rediss"
+	return r.Scheme == "rediss" || r.Scheme == "crediss"
+}
+
+func (r Resource) IsCluster() bool {
+	return r.Scheme == "credis" || r.Scheme == "crediss"
 }
 
 func (r Resource) FormattedString() string {
@@ -43,6 +47,18 @@ func exit(e error) {
 	fmt.Println(e)
 	flag.PrintDefaults()
 	os.Exit(1)
+}
+
+// https://play.golang.org/p/Qg_uv_inCek
+// contains checks if a string is present in a slice
+func contains(s []string, str string) bool {
+	for _, v := range s {
+		if v == str {
+			return true
+		}
+	}
+
+	return false
 }
 
 // validate makes sure from and to are Redis URIs or file paths,

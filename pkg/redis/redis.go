@@ -7,6 +7,7 @@ import (
 
 	"github.com/mediocregopher/radix/v3"
 
+	"github.com/stickermule/rump/pkg/config"
 	"github.com/stickermule/rump/pkg/message"
 )
 
@@ -21,13 +22,16 @@ type Redis struct {
 }
 
 // New creates the Redis struct, used to read/write.
-func New(source *radix.Pool, bus message.Bus, silent, ttl bool) *Redis {
+func New(addr string, cfg config.Config, bus message.Bus) (*Redis, error) {
+
+	source, err := radix.NewPool("tcp", addr, 1, radix.PoolConnFunc(authConn(cfg.Source)))
+
 	return &Redis{
 		Pool:   source,
 		Bus:    bus,
-		Silent: silent,
-		TTL:    ttl,
-	}
+		Silent: cfg.Silent,
+		TTL:    cfg.TTL,
+	}, err
 }
 
 // maybeLog may log, depending on the Silent flag
@@ -133,6 +137,30 @@ func (r *Redis) Write(ctx context.Context) error {
 }
 
 func (r *Redis) Monitor(ctx context.Context) error {
-	err := r.Pool.Do(radix.Cmd(nil, "MONITOR", ""))
-	return err
+
+	// Loop until channel is open
+	for r.Bus != nil {
+		select {
+		// Exit early if context done.
+		case <-ctx.Done():
+			fmt.Println("")
+			fmt.Println("redis write: exit")
+			return ctx.Err()
+		// Get Messages from Bus
+		case p, ok := <-r.Bus:
+			// if channel closed, set to nil, break loop
+			if !ok {
+				r.Bus = nil
+				continue
+			}
+			err := r.Pool.Do(radix.Cmd(&p.Value, "MONITOR", ""))
+			if err != nil {
+				return err
+			}
+
+			r.maybeLog(p.Value)
+		}
+	}
+
+	return nil
 }
