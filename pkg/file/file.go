@@ -68,7 +68,11 @@ func (f *File) Read(ctx context.Context) error {
 	// Scan file, split by double-cross separator
 	scanner := bufio.NewScanner(d)
 	scanner.Split(splitCross)
-
+	
+	// set buffer max size to 2MB, initial size to 128k
+	buf := make([]byte, 0, 128*1024)
+	scanner.Buffer(buf, 2*1024*1024)
+	
 	// Scan line by line
 	// file protocol is key✝✝value✝✝ttl✝✝
 	for scanner.Scan() {
