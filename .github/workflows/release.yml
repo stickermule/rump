@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - "*"
+  workflow_dispatch: {}
 
 jobs:
   build:
@@ -20,4 +21,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: ${{ matrix.goos }}
         goarch: ${{ matrix.goarch }}
-        build_command: go build cmd/rump/main.go
+        project_path: ./cmd/rump
