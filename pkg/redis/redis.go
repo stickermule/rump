@@ -4,6 +4,7 @@ package redis
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/mediocregopher/radix/v3"
 
@@ -90,11 +91,10 @@ func (r *Redis) Read(ctx context.Context) error {
 
 		select {
 		case <-ctx.Done():
-			fmt.Println("")
-			fmt.Println("redis read: exit")
+			fmt.Println("redis: done reading")
 			return ctx.Err()
 		case r.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
-			r.maybeLog("r")
+			fmt.Printf("redis: DUMP %s => ttl=%s, size=%d\n", key, ttl, len(value))
 		}
 	}
 
@@ -108,8 +108,7 @@ func (r *Redis) Write(ctx context.Context) error {
 		select {
 		// Exit early if context done.
 		case <-ctx.Done():
-			fmt.Println("")
-			fmt.Println("redis write: exit")
+			fmt.Println("redis: done writing")
 			return ctx.Err()
 		// Get Messages from Bus
 		case p, ok := <-r.Bus:
@@ -118,11 +117,23 @@ func (r *Redis) Write(ctx context.Context) error {
 				r.Bus = nil
 				continue
 			}
-			err := r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, p.TTL, p.Value, "REPLACE"))
+
+			// validate and sanitize TTL
+			parsedTTL, err := strconv.ParseInt(p.TTL, 10, 64)
+			if err != nil {
+				fmt.Printf("redis: skipping key \"%s\" with invalid TTL \"%s\"; error=%s\n", p.Key, p.TTL, err)
+				continue
+			} else if parsedTTL < 0 {
+				fmt.Printf("redis: skipping key \"%s\" with invalid TTL \"%s\"\n", p.Key, p.TTL)
+				continue
+			}
+
+			err = r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, p.TTL, p.Value, "REPLACE"))
 			if err != nil {
 				return err
 			}
-			r.maybeLog("w")
+
+			fmt.Printf("redis: RESTORE %s ttl=%s \n", p.Key, p.TTL)
 		}
 	}
 

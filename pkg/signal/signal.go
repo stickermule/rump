@@ -20,8 +20,7 @@ func Run(ctx context.Context, cancel context.CancelFunc) error {
 		fmt.Println("signal: ", sig)
 		cancel()
 	case <-ctx.Done():
-		fmt.Println("")
-		fmt.Println("signal: exit")
+		fmt.Println("signal: done")
 		return ctx.Err()
 	}
 

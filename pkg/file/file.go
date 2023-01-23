@@ -68,11 +68,11 @@ func (f *File) Read(ctx context.Context) error {
 	// Scan file, split by double-cross separator
 	scanner := bufio.NewScanner(d)
 	scanner.Split(splitCross)
-	
+
 	// set buffer max size to 2MB, initial size to 128k
-	buf := make([]byte, 0, 128*1024)
-	scanner.Buffer(buf, 2*1024*1024)
-	
+	buf := make([]byte, 0, 1024*1024)
+	scanner.Buffer(buf, 20*1024*1024)
+
 	// Scan line by line
 	// file protocol is key✝✝value✝✝ttl✝✝
 	for scanner.Scan() {
@@ -86,11 +86,10 @@ func (f *File) Read(ctx context.Context) error {
 		ttl := scanner.Text()
 		select {
 		case <-ctx.Done():
-			fmt.Println("")
-			fmt.Println("file read: exit")
+			fmt.Println("file: done")
 			return ctx.Err()
 		case f.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
-			f.maybeLog("r")
+			fmt.Printf("file: read %s => ttl=%s, size=%d\n", key, ttl, len(value))
 		}
 	}
 
@@ -119,8 +118,7 @@ func (f *File) Write(ctx context.Context) error {
 		select {
 		// Exit early if context done.
 		case <-ctx.Done():
-			fmt.Println("")
-			fmt.Println("file write: exit")
+			fmt.Println("file: done")
 			return ctx.Err()
 		// Get Messages from Bus
 		case p, ok := <-f.Bus:
@@ -133,7 +131,7 @@ func (f *File) Write(ctx context.Context) error {
 			if err != nil {
 				return err
 			}
-			f.maybeLog("w")
+			fmt.Printf("file: write %s => ttl=%s, size=%d\n", p.Key, p.TTL, len(p.Value))
 		}
 	}
 
