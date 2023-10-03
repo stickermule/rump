@@ -61,7 +61,7 @@ func (f *File) Read(ctx context.Context) error {
 
 	d, err := os.Open(f.Path)
 	if err != nil {
-		return err
+		return fmt.Errorf("error opening file %s: %W", f.Path, err)
 	}
 	defer d.Close()
 
@@ -69,9 +69,9 @@ func (f *File) Read(ctx context.Context) error {
 	scanner := bufio.NewScanner(d)
 	scanner.Split(splitCross)
 
-	// set buffer max size to 2MB, initial size to 128k
-	buf := make([]byte, 0, 1024*1024)
-	scanner.Buffer(buf, 20*1024*1024)
+	// set buffer max size: 20MB to 40MB
+	buf := make([]byte, 0, 20*1024*1024)
+	scanner.Buffer(buf, 40*1024*1024)
 
 	// Scan line by line
 	// file protocol is key✝✝value✝✝ttl✝✝
@@ -94,7 +94,7 @@ func (f *File) Read(ctx context.Context) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		return err
+		return fmt.Errorf("error reading from file: %W", err)
 	}
 
 	return nil
@@ -104,7 +104,7 @@ func (f *File) Read(ctx context.Context) error {
 func (f *File) Write(ctx context.Context) error {
 	d, err := os.Create(f.Path)
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating file %s: %W", f.Path, err)
 	}
 	defer d.Close()
 
@@ -129,7 +129,7 @@ func (f *File) Write(ctx context.Context) error {
 			}
 			_, err := w.WriteString(p.Key + "✝✝" + p.Value + "✝✝" + p.TTL + "✝✝")
 			if err != nil {
-				return err
+				return fmt.Errorf("error writing key '%s' to file with size %d: %W", p.Key, len(p.Value), err)
 			}
 			fmt.Printf("file: write %s => ttl=%s, size=%d\n", p.Key, p.TTL, len(p.Value))
 		}

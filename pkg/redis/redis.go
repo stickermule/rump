@@ -51,7 +51,7 @@ func (r *Redis) maybeTTL(key string) (string, error) {
 	// Try getting key TTL.
 	err := r.Pool.Do(radix.Cmd(&ttl, "PTTL", key))
 	if err != nil {
-		return ttl, err
+		return ttl, fmt.Errorf("error calling PTTL for key '%s': %W", key, err)
 	}
 
 	// When key has no expire PTTL returns "-1".
@@ -81,18 +81,22 @@ func (r *Redis) Read(ctx context.Context) error {
 	for scanner.Next(&key) {
 		err := r.Pool.Do(radix.Cmd(&value, "DUMP", key))
 		if err != nil {
-			return err
+			return fmt.Errorf("error reading key '%s' from redis: %W", key, err)
 		}
 
 		ttl, err = r.maybeTTL(key)
 		if err != nil {
-			return err
+			return fmt.Errorf("error syncing ttl for key '%s': %W", key, err)
 		}
 
 		select {
 		case <-ctx.Done():
 			fmt.Println("redis: done reading")
-			return ctx.Err()
+			err := ctx.Err()
+			if err != nil {
+				return fmt.Errorf("error reading from redis: %W", err)
+			}
+			return nil
 		case r.Bus <- message.Payload{Key: key, Value: value, TTL: ttl}:
 			fmt.Printf("redis: DUMP %s => ttl=%s, size=%d\n", key, ttl, len(value))
 		}
@@ -109,7 +113,11 @@ func (r *Redis) Write(ctx context.Context) error {
 		// Exit early if context done.
 		case <-ctx.Done():
 			fmt.Println("redis: done writing")
-			return ctx.Err()
+			err := ctx.Err()
+			if err != nil {
+				return fmt.Errorf("error writing to redis: %W", err)
+			}
+			return nil
 		// Get Messages from Bus
 		case p, ok := <-r.Bus:
 			// if channel closed, set to nil, break loop
@@ -130,7 +138,7 @@ func (r *Redis) Write(ctx context.Context) error {
 
 			err = r.Pool.Do(radix.Cmd(nil, "RESTORE", p.Key, p.TTL, p.Value, "REPLACE"))
 			if err != nil {
-				return err
+				return fmt.Errorf("error restoring key '%s': %W", p.Key, err)
 			}
 
 			fmt.Printf("redis: RESTORE %s ttl=%s \n", p.Key, p.TTL)
